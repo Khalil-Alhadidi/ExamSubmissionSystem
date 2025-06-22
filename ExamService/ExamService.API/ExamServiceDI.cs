@@ -11,7 +11,9 @@ using ExamService.Application.UseCases.Subjects.Update;
 using ExamService.Infrastructure.Persistence;
 using ExamService.Infrastructure.Repositories;
 using ExamService.Infrastructure.Services;
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace ExamService.API;
 
@@ -48,7 +50,10 @@ public static class ExamServiceDI
         services.AddScoped<DeleteQuestionHandler>();
         services.AddScoped<GetQuestionsBySubjectHandler>();
 
-
+        services.Configure<JsonOptions>(options =>
+        {
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
 
 
         return services;

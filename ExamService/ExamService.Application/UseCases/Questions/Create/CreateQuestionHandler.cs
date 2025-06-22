@@ -22,6 +22,9 @@ public class CreateQuestionHandler
 
     public async Task HandleAsync(CreateQuestionDto dto)
     {
+
+        
+
         var question = new QuestionsBank
         {
             Id = Guid.NewGuid(),
