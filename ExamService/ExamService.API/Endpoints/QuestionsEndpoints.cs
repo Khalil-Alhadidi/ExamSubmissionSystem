@@ -1,5 +1,4 @@
 ﻿using ExamService.Application.DTOs.Questions;
-using ExamService.Application.UseCases.ExamConfig;
 using ExamService.Application.UseCases.Questions.Create;
 using ExamService.Application.UseCases.Questions.Delete;
 using ExamService.Application.UseCases.Questions.Read;
@@ -11,43 +10,56 @@ public static class QuestionsEndpoints
 {
     public static IEndpointRouteBuilder MapQuestionBanksEndpoints(this IEndpointRouteBuilder app)
     {
+        var v1 = app.MapGroup("/api/v1/questions")
+            .WithTags("Questions API v1");
 
-
-        app.MapGet("/api/questions", async (GetQuestionsHandler handler) =>
+        v1.MapGet("/", async (GetQuestionsHandler handler) =>
         {
             var result = await handler.HandleAsync();
             return Results.Ok(result);
-        });
+        })
+            .WithSummary("List all questions")
+            .WithDescription("Returns all questions available in the system.");
 
-        app.MapGet("/api/questions/{id}", async (Guid id, GetQuestionByIdHandler handler) =>
+        v1.MapGet("/{id}", async (Guid id, GetQuestionByIdHandler handler) =>
         {
             var result = await handler.HandleAsync(id);
             return result is null ? Results.NotFound() : Results.Ok(result);
-        });
+        })
+            .WithSummary("Get question by ID")
+            .WithDescription("Retrieves a question by its unique identifier. Returns 404 if not found.");
 
-        app.MapGet("/api/questions/by-subject/{subjectId}", async (Guid subjectId, GetQuestionsBySubjectHandler handler) =>
+        v1.MapGet("/by-subject/{subjectId}", async (Guid subjectId, GetQuestionsBySubjectHandler handler) =>
         {
             var result = await handler.HandleAsync(subjectId);
             return Results.Ok(result);
-        });
+        })
+            .WithSummary("List questions by subject")
+            .WithDescription("Returns all questions associated with a specific subject.");
 
-        app.MapPost("/api/questions", async (CreateQuestionDto dto, CreateQuestionHandler handler) =>
+        v1.MapPost("/", async (CreateQuestionDto dto, CreateQuestionHandler handler) =>
         {
             await handler.HandleAsync(dto);
             return Results.Created("/api/questions", dto);
-        });
+        })
+            .WithSummary("Create a new question")
+            .WithDescription("Creates a new question with the provided details.");
 
-        app.MapPut("/api/questions/{id}", async (Guid id, UpdateQuestionDto dto, UpdateQuestionHandler handler) =>
+        v1.MapPut("/{id}", async (Guid id, UpdateQuestionDto dto, UpdateQuestionHandler handler) =>
         {
             var updated = await handler.HandleAsync(id, dto);
             return updated ? Results.NoContent() : Results.NotFound();
-        });
+        })
+            .WithSummary("Update an existing question")
+            .WithDescription("Updates the details of an existing question by its unique identifier.");
 
-        app.MapDelete("/api/questions/{id}", async (Guid id, DeleteQuestionHandler handler) =>
+        v1.MapDelete("/{id}", async (Guid id, DeleteQuestionHandler handler) =>
         {
             await handler.HandleAsync(id);
             return Results.NoContent();
-        });
+        })
+            .WithSummary("Delete a question")
+            .WithDescription("Deletes a question by its unique identifier.");
 
         return app;
     }

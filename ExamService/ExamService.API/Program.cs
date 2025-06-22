@@ -30,6 +30,8 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(); // You can add options if needed
 }
 
 //app.UseHttpsRedirection();
