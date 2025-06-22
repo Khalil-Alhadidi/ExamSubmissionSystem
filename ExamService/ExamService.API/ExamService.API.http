@@ -1,0 +1,6 @@
+@ExamService.API_HostAddress = https://localhost:7006
+
+GET {{ExamService.API_HostAddress}}/
+Accept: application/json
+
+###
