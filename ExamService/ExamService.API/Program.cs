@@ -1,10 +1,13 @@
 using ExamService.API;
 using ExamService.API.Endpoints;
+using ExamService.Infrastructure.Extensions;
+using ExamService.Infrastructure.Middleware;
 using ExamService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Logging;
+using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using OpenTelemetry.Metrics;
 using Serilog;
 
 #region Logging and Telemetry
@@ -35,41 +38,38 @@ builder.Services.AddOpenTelemetry()
 #endregion
 
 
-
-
- 
-
 ExamServiceDI.AddExamServiceDI(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(); 
+    app.UseSwaggerUI();
+    app.MapOpenApi();
+    IdentityModelEventSource.ShowPII = true;
+    app.MapDevTokenEndpoints();
 }
-
-//app.UseHttpsRedirection();
-
-
-app.UseMiddleware<ErrorHandlingMiddleware>();
-
 
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ExamDbContext>();
-    await db.Database.MigrateAsync(); 
+    await db.Database.MigrateAsync();
     await ExamDbSeeder.SeedAsync(db);
 }
 
 app.UseCors("AllowAllOrigins");
+
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
+app.UseAuthentication();
+app.UseClaimsValidation(); // custom middleware
+app.UseAuthorization();
+
 app.MapExamEndpoints();
 app.MapSubjectsEndpoints();
 app.MapQuestionBanksEndpoints();
 
 app.MapGet("/", () => "ExamService is running");
 
-
 app.Run();
- 

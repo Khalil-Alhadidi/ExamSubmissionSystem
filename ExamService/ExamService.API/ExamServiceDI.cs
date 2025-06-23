@@ -13,26 +13,56 @@ using ExamService.Application.UseCases.Subjects.Read;
 using ExamService.Application.UseCases.Subjects.Update;
 using ExamService.Infrastructure.Persistence;
 using ExamService.Infrastructure.Repositories;
+using ExamService.Infrastructure.Services;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Security.Claims;
+using System.Text;
 using System.Text.Json.Serialization;
-
 namespace ExamService.API;
 
 public static class ExamServiceDI
 {
-    public static IServiceCollection AddExamServiceDI(this IServiceCollection services,IConfiguration configuration)
+    public static IServiceCollection AddExamServiceDI(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOpenApi();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new() { Title = "ExamService API", Version = "v1" });
-            c.SwaggerDoc("v2", new() { Title = "ExamService API", Version = "v2" });
+
+            c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.Http,
+                Scheme = "bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header,
+                Description = "Enter your JWT like this: eyJ..."
+            });
+
+            c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
         });
 
-        
+
+
 
         services.AddCors(options =>
         {
@@ -47,6 +77,46 @@ public static class ExamServiceDI
             options.UseSqlServer(configuration.GetConnectionString("ExamServiceDbConnection"),
              sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
 
+        // To mimic the behavior of a real user, in real world this should be coming from UserService
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+
+        services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+            .AddJwtBearer(options =>
+            {
+                //options.Authority = "https://your-auth-provider"; // external or future UserService
+
+
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    // future UserService
+                    ValidateIssuer = false, 
+                    ValidateAudience = false,
+
+                    ValidateLifetime = true,
+                    
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes("This will be 256 bit secret and it should be 512 if I go with HmacSha512, it must be read from a secure location, this !s for Testing only0_0") // 
+            ),
+
+                    NameClaimType = ClaimTypes.NameIdentifier,//"sub"
+                    RoleClaimType = ClaimTypes.Role //"role" 
+                };
+            });
+
+
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("AdminOnly", policy =>
+                policy.RequireRole("admin"));
+        });
+
         // Repositories
         services.AddScoped<ISubjectRepository, SubjectRepository>();
         services.AddScoped<IQuestionsBankRepository, QuestionsBankRepository>();
@@ -56,7 +126,7 @@ public static class ExamServiceDI
 
 
         // Handlers
-        
+
         #region Subject Handlers
         services.AddScoped<CreateSubjectHandler>();
         services.AddScoped<GetSubjectsHandler>();
@@ -96,7 +166,7 @@ public static class ExamServiceDI
 
         services.AddValidatorsFromAssemblyContaining<CreateExamConfigValidator>();
 
-       
+
 
 
         return services;

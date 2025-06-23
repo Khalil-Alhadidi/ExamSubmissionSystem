@@ -12,7 +12,8 @@ public static class SubjectEndpoints
     {
 
         var v1 = app.MapGroup("/api/v1/subjects")
-        .WithTags("Subjects API v1");
+        .WithTags("Subjects API v1")
+        .RequireAuthorization("AdminOnly"); 
 
         v1.MapGet("/", async (GetSubjectsHandler handler) =>
         {

@@ -1,4 +1,7 @@
-﻿namespace ExamService.API;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+
+namespace ExamService.Infrastructure.Middleware;
 
 public class ErrorHandlingMiddleware
 {

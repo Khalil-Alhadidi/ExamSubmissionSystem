@@ -1,31 +1,34 @@
-# Exam Submission System
+# 🧠 Exam Platform Backend – Microservice Architecture
 
-This repository contains a microservices Exam Submission System built with .NET 9.0. The solution is organized into multiple services, each following a clean architecture approach, and includes API, Application, Domain, Infrastructure, and Test projects for each service.
+This project is a backend-only exam platform built using clean architecture and microservices principles, designed for evaluation purposes. It includes exam management, student submission, and simulated notification/processing.
 
-## Solution Structure
+## 📦 Technology Stack
 
-- **ExamService**
-  - `ExamService.API`: REST API for exam management
-  - `ExamService.Application`: Application logic and use cases
-  - `ExamService.Domain`: Domain models and interfaces
-  - `ExamService.Infrastructure`: Data access and external integrations
-  - `ExamService.Test`: Unit and integration tests
+- ASP.NET Core 9
+- Entity Framework Core
+- RabbitMQ (message broker)
+- SQL Server (per service DB)
+- Serilog (logging)
+- OpenTelemetry (tracing)
+- xUnit (unit testing planned)
+- Docker / Docker Compose
 
-- **SubmissionService**
-  - `SubmissionService.API`: REST API for submission management
-  - `SubmissionService.Application`: Application logic and use cases
-  - `SubmissionService.Domain`: Domain models and interfaces
-  - `SubmissionService.Infrastructure`: Data access and external integrations
-  - `SubmissionService.Test`: Unit and integration tests
+---
 
-- **NotificationService**
-  - `NotificationService.API`: REST API for notifications
-  - `NotificationService.Application`: Application logic and use cases
-  - `NotificationService.Domain`: Domain models and interfaces
-  - `NotificationService.Infrastructure`: Data access and external integrations
-  - `NotificationService.Test`: Unit and integration tests
+## 🏗️ Microservices
 
-- **Shared**
-  - Common code and utilities shared across services
+| Service | Purpose |
+|--------|---------|
+| **ExamService** | Manage subjects, questions, and exam configuration (admin-only) |
+| **SubmissionService** | Allow students to submit exam responses |
+| **NotificationService** | Simulate notification to grading pipeline (fire-and-forget, async) |
 
-#
+Each service has its own database and runs independently.
+
+---
+
+## 🔐 Authentication & Authorization
+
+- JWT-based auth with hardcoded tokens (no real UserService).
+- JWTs are manually generated with `sub` (user ID) and `role` (`admin` or `student`).
+- Role-based access is enforced using `[Authorize(Roles = "admin")]`, etc.

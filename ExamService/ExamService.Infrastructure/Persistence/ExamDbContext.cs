@@ -1,14 +1,19 @@
-﻿using ExamService.Domain.Entities;
+﻿using ExamService.Application.Interfaces;
+using ExamService.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Linq.Expressions;
 
 namespace ExamService.Infrastructure.Persistence;
 
 public class ExamDbContext : DbContext
 {
-    public ExamDbContext(DbContextOptions<ExamDbContext> options)
+    private readonly ICurrentUserService _currentUser;
+
+    public ExamDbContext(DbContextOptions<ExamDbContext> options, ICurrentUserService currentUser)
         : base(options)
     {
+        _currentUser = currentUser;
     }
 
     public DbSet<Subject> Subjects => Set<Subject>();
@@ -43,7 +48,7 @@ public class ExamDbContext : DbContext
     {
         // UTC time and user ID for auditing
         var now = DateTime.UtcNow;
-        var user = "system"; // Or inject a service to get the actual user ID from the token
+        var user = _currentUser.UserId ?? "system";
 
         foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
         {
@@ -64,6 +69,7 @@ public class ExamDbContext : DbContext
                     entry.State = EntityState.Modified;
                     entry.Entity.DeletedAtUtc = now;
                     entry.Entity.IsDeleted = true;
+                    entry.Entity.ModifiedBy = user;
                     break;
             }
         }
