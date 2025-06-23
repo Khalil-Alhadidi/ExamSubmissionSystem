@@ -10,9 +10,13 @@ EXPOSE 8081
 
 # This stage is used to build the service project
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
+ARG BUILD_CONFIGURATION=Released
 WORKDIR /src
 COPY ["ExamService/ExamService.API/ExamService.API.csproj", "ExamService/ExamService.API/"]
+COPY ["ExamService/ExamService.Application/ExamService.Application.csproj", "ExamService/ExamService.Application/"]
+COPY ["Shared/Shared/Shared.csproj", "Shared/Shared/"]
+COPY ["ExamService/ExamService.Domain/ExamService.Domain.csproj", "ExamService/ExamService.Domain/"]
+COPY ["ExamService/ExamService.Infrastructure/ExamService.Infrastructure.csproj", "ExamService/ExamService.Infrastructure/"]
 RUN dotnet restore "./ExamService/ExamService.API/ExamService.API.csproj"
 COPY . .
 WORKDIR "/src/ExamService/ExamService.API"

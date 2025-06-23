@@ -70,6 +70,6 @@ app.MapExamEndpoints();
 app.MapSubjectsEndpoints();
 app.MapQuestionBanksEndpoints();
 
-app.MapGet("/", () => "ExamService is running");
+app.MapGet("/", () => "ExamService is running - current UTC Time is :"+DateTime.UtcNow);
 
 app.Run();
