@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Text.Json; // Add this for JSON serialization
 
-namespace ExamService.Infrastructure.Middleware;
+namespace Shared.Middleware;
 
 public class ErrorHandlingMiddleware
 {
@@ -28,7 +29,8 @@ public class ErrorHandlingMiddleware
             context.Response.ContentType = "application/json";
 
             var error = new { error = "Something went wrong", details = ex.Message };
-            await context.Response.WriteAsJsonAsync(error);
+            var json = JsonSerializer.Serialize(error);
+            await context.Response.WriteAsync(json);
         }
     }
 }

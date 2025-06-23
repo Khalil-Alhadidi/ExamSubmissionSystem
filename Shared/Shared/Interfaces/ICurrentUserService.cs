@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExamService.Application.Interfaces;
+namespace Shared.Interfaces;
 
 public interface ICurrentUserService
 {

@@ -1,6 +1,6 @@
-@SubmissionService.API_HostAddress = http://localhost:5264
+@SubmissionService.API_HostAddress = https://localhost:7136
 
-GET {{SubmissionService.API_HostAddress}}/weatherforecast/
+GET {{SubmissionService.API_HostAddress}}/
 Accept: application/json
 
 ###

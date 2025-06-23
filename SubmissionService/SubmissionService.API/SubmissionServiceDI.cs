@@ -1,40 +1,33 @@
-﻿using ExamService.Application.Interfaces;
-using ExamService.Application.UseCases.ExamConfigs.Create;
-using ExamService.Application.UseCases.ExamConfigs.Delete;
-using ExamService.Application.UseCases.ExamConfigs.Read;
-using ExamService.Application.UseCases.ExamConfigs.Update;
-using ExamService.Application.UseCases.Questions.Create;
-using ExamService.Application.UseCases.Questions.Delete;
-using ExamService.Application.UseCases.Questions.Read;
-using ExamService.Application.UseCases.Questions.Update;
-using ExamService.Application.UseCases.Subjects.Create;
-using ExamService.Application.UseCases.Subjects.Delete;
-using ExamService.Application.UseCases.Subjects.Read;
-using ExamService.Application.UseCases.Subjects.Update;
-using ExamService.Infrastructure.Persistence;
-using ExamService.Infrastructure.Repositories;
-using FluentValidation;
+﻿using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Polly;
+using Shared.Contracts.ExamService;
 using Shared.Interfaces;
 using Shared.Services;
+using SubmissionService.Application.Interfaces;
+using SubmissionService.Application.UseCases.SubmitExam;
+using SubmissionService.Infrastructure.Persistence;
+using SubmissionService.Infrastructure.Repositories;
+using SubmissionService.Infrastructure.Services;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
-namespace ExamService.API;
 
-public static class ExamServiceDI
+namespace SubmissionService.API;
+
+public static class SubmissionServiceDI
 {
-    public static IServiceCollection AddExamServiceDI(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSubmissionServiceDI(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddOpenApi();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
-            c.SwaggerDoc("v1", new() { Title = "ExamService API", Version = "v1" });
+            c.SwaggerDoc("v1", new() { Title = "SubmissionService API", Version = "v1" });
 
             c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
@@ -74,8 +67,8 @@ public static class ExamServiceDI
         });
 
         // Database Context
-        services.AddDbContext<ExamDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("ExamServiceDbConnection"),
+        services.AddDbContext<SubmissionDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("SubmissionServiceDbConnection"),
              sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
 
         // To mimic the behavior of a real user, in real world this should be coming from UserService
@@ -83,6 +76,7 @@ public static class ExamServiceDI
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
 
+        
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -96,11 +90,11 @@ public static class ExamServiceDI
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     // future UserService
-                    ValidateIssuer = false, 
+                    ValidateIssuer = false,
                     ValidateAudience = false,
 
                     ValidateLifetime = true,
-                    
+
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes("This will be 256 bit secret and it should be 512 if I go with HmacSha512, it must be read from a secure location, this !s for Testing only0_0") // 
@@ -114,51 +108,37 @@ public static class ExamServiceDI
 
         services.AddAuthorization(options =>
         {
-            options.AddPolicy("AdminOnly", policy =>
-                policy.RequireRole("admin"));
+            options.AddPolicy("StudentOnly", policy =>
+                policy.RequireRole("user"));
         });
 
-        // Repositories
-        services.AddScoped<ISubjectRepository, SubjectRepository>();
-        services.AddScoped<IQuestionsBankRepository, QuestionsBankRepository>();
-        services.AddScoped<IExamConfigRepository, ExamConfigRepository>();
 
+        // repositories
+        services.AddScoped<ISubmissionRepository, SubmissionRepository>();
 
+        //Handlers
+        services.AddScoped<SubmitExamHandler>();
 
+       
+        services.AddHttpClient<IExamServiceClient, ExamServiceClient>(client =>
+        {
+            client.BaseAddress = new Uri(configuration["Services:ExamServiceUrl"]!);
+        })
+        .AddTransientHttpErrorPolicy(policy =>
+         policy.WaitAndRetryAsync(
+        retryCount: 3,
+        sleepDurationProvider: retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)), // 2s, 4s, 8s
+        onRetry: (outcome, timespan, retryAttempt, context) =>
+        {
+            Console.WriteLine($"Retry {retryAttempt} due to {outcome.Exception?.Message}");
+        }));
 
-        // Handlers
+        services.AddHttpClient("ExamServiceHealthCheck", client =>
+        {
+            client.BaseAddress = new Uri(configuration["Services:ExamServiceUrl"]!);
+            client.Timeout = TimeSpan.FromSeconds(5); // short timeout for health check
+        });
 
-        #region Subject Handlers
-        services.AddScoped<CreateSubjectHandler>();
-        services.AddScoped<GetSubjectsHandler>();
-        services.AddScoped<GetSubjectByIdHandler>();
-        services.AddScoped<UpdateSubjectHandler>();
-        //services.AddScoped<DeleteSubjectHandler>();
-        services.AddScoped<SoftDeleteSubjectHandler>();
-
-        #endregion
-
-        #region Questions hanlders
-        services.AddScoped<GetQuestionByIdHandler>();
-        services.AddScoped<GetQuestionsHandler>();
-        services.AddScoped<CreateQuestionHandler>();
-        services.AddScoped<UpdateQuestionHandler>();
-        //services.AddScoped<DeleteQuestionHandler>();
-        services.AddScoped<SoftDeleteQuestionHandler>();
-        services.AddScoped<GetQuestionsBySubjectHandler>();
-
-        #endregion
-
-        #region Exam Config handlers
-        services.AddScoped<GetExamConfigsHandler>();
-        services.AddScoped<GetExamConfigByIdHandler>();
-        services.AddScoped<CreateExamConfigHandler>();
-        services.AddScoped<UpdateExamConfigHandler>();
-        services.AddScoped<DeleteExamConfigHandler>();
-        services.AddScoped<GetExamWithQuestionsHandler>();
-        services.AddScoped<GetPublicExamConfigByIdHandler>();
-
-        #endregion
 
         // Application Services
         services.Configure<JsonOptions>(options =>
@@ -166,7 +146,6 @@ public static class ExamServiceDI
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        services.AddValidatorsFromAssemblyContaining<CreateExamConfigValidator>();
 
 
 

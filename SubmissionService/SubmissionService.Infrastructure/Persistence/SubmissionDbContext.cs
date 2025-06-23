@@ -1,44 +1,61 @@
-﻿using ExamService.Application.Interfaces;
-using ExamService.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace SubmissionService.Infrastructure.Persistence;
+
 using Microsoft.EntityFrameworkCore;
-using System.Linq.Expressions;
 using Shared.Entities;
 using Shared.Interfaces;
+using SubmissionService.Domain.Entities;
+using System.Linq.Expressions;
 
-namespace ExamService.Infrastructure.Persistence;
-
-public class ExamDbContext : DbContext
+public class SubmissionDbContext : DbContext
 {
     private readonly ICurrentUserService _currentUser;
-
-    public ExamDbContext(DbContextOptions<ExamDbContext> options, ICurrentUserService currentUser)
+    public SubmissionDbContext(DbContextOptions<SubmissionDbContext> options, ICurrentUserService currentUser)
         : base(options)
     {
         _currentUser = currentUser;
     }
+    
 
-    public DbSet<Subject> Subjects => Set<Subject>();
-    public DbSet<QuestionsBank> QuestionsBank => Set<QuestionsBank>();
-    public DbSet<ExamConfig> ExamConfigs => Set<ExamConfig>();
+    public DbSet<Submission> Submissions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.HasDefaultSchema("Submission");
 
-        // Set default schema
-        modelBuilder.HasDefaultSchema("Exam");
+        modelBuilder.Entity<Submission>(submission =>
+        {
+            submission.HasKey(s => s.Id);
+            submission.Property(s => s.StudentId).IsRequired();
+            submission.Property(s => s.ExamId).IsRequired();
+            submission.Property(s => s.SubmittedAtUtc).IsRequired();
 
-        modelBuilder.Entity<ExamConfig>()
-            .Property(e => e.QuestionIds)
-            .HasConversion(
-                v => string.Join(',', v),
-                v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(Guid.Parse).ToList()
-            );
-        
-        // for soft delete functionality filter
+            submission.OwnsMany(s => s.Answers, answers =>
+            {
+                answers.WithOwner().HasForeignKey("SubmissionId");
+                answers.Property<Guid>("Id"); // required for EF Core tracking
+                answers.HasKey("Id");
+                answers.Property(a => a.QuestionId).IsRequired();
+                answers.Property(a => a.QuestionType).IsRequired();
+                answers.Property(a => a.SelectedOption);
+                answers.Property(a => a.NarrativeAnswerText);
+                answers.ToTable("Answers");
+            });
+
+            submission.ToTable("Submissions");
+        });
+
+        // for soft delete functionality filter, skip owned types
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
-            if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
+            // Only apply filter to root entities (not owned)
+            if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType) && entityType.FindOwnership() == null)
             {
                 modelBuilder.Entity(entityType.ClrType)
                     .HasQueryFilter(GetIsDeletedRestriction(entityType.ClrType));
@@ -88,3 +105,4 @@ public class ExamDbContext : DbContext
         return Expression.Lambda(condition, param);
     }
 }
+

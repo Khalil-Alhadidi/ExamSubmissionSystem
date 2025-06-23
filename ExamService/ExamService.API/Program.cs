@@ -1,7 +1,5 @@
 using ExamService.API;
 using ExamService.API.Endpoints;
-using ExamService.Infrastructure.Extensions;
-using ExamService.Infrastructure.Middleware;
 using ExamService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
@@ -9,6 +7,8 @@ using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
+using Shared.Middleware;
+using Shared.Extensions;
 
 #region Logging and Telemetry
 Log.Logger = new LoggerConfiguration()
@@ -63,12 +63,13 @@ app.UseCors("AllowAllOrigins");
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();
-app.UseClaimsValidation(); // custom middleware
+app.UseClaimsGlobalValidation();
 app.UseAuthorization();
 
 app.MapExamEndpoints();
 app.MapSubjectsEndpoints();
 app.MapQuestionBanksEndpoints();
+app.MapPublicExamConfigEndpoints();
 
 app.MapGet("/", () => "ExamService is running - current UTC Time is :"+DateTime.UtcNow);
 

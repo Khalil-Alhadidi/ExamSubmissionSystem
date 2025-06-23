@@ -3,7 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace ExamService.API.Endpoints;
+namespace SubmissionService.API.Endpoints;
 
 public static class DevTokens
 {
@@ -13,15 +13,15 @@ public static class DevTokens
         {
 
             // a
-            string studentId = "856246DF-976D-449B-A993-8B7AA8525B81";
+            string studentId = "B046912D-D09D-4BCE-B95F-0F0D0FBC358A";
             var claims = new[]
                 {
-                new Claim(ClaimTypes.NameIdentifier, "admin"),
-                new Claim(ClaimTypes.Role, "admin"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Sub, studentId)
+            new Claim(ClaimTypes.NameIdentifier, "user"),
+            new Claim(ClaimTypes.Role, "user"),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, studentId)
 
-            };
+        };
 
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("This will be 256 bit secret and it should be 512 if I go with HmacSha512, it must be read from a secure location, this !s for Testing only0_0"));

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ExamService.Domain.Entities;
+namespace Shared.Entities;
 
-public abstract class AuditableEntity
+public class AuditableEntity
 {
     public DateTime CreatedAtUtc { get; set; }
     public string? CreatedBy { get; set; }
@@ -17,4 +17,3 @@ public abstract class AuditableEntity
     public bool IsDeleted { get; set; }
     public DateTime? DeletedAtUtc { get; set; }
 }
-

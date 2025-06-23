@@ -1,13 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace ExamService.Infrastructure.Middleware;
+namespace Shared.Middleware;
 
 public class ClaimsValidationMiddleware
 {
@@ -24,10 +19,7 @@ public class ClaimsValidationMiddleware
     {
         var user = context.User;
 
-        foreach (var claim in user.Claims)
-        {
-            _logger.LogWarning("Claim: {Type} = {Value}", claim.Type, claim.Value);
-        }
+       
 
         if (user.Identity?.IsAuthenticated == true)
         {

@@ -1,4 +1,5 @@
-﻿namespace ExamService.Domain.Entities;
+﻿
+namespace ExamService.Domain.Entities;
 
 public enum QuestionType
 {

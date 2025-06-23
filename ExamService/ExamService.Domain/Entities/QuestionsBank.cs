@@ -1,4 +1,5 @@
-﻿namespace ExamService.Domain.Entities;
+﻿using Shared.Entities;
+namespace ExamService.Domain.Entities;
 
 public class QuestionsBank : AuditableEntity
 {
