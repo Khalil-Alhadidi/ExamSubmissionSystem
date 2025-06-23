@@ -11,7 +11,7 @@ public static class QuestionsEndpoints
     public static IEndpointRouteBuilder MapQuestionBanksEndpoints(this IEndpointRouteBuilder app)
     {
         var v1 = app.MapGroup("/api/v1/questions")
-            .WithTags("Questions API v1");
+            .WithTags("Questions Bank API v1");
 
         v1.MapGet("/", async (GetQuestionsHandler handler) =>
         {
@@ -21,7 +21,7 @@ public static class QuestionsEndpoints
             .WithSummary("List all questions")
             .WithDescription("Returns all questions available in the system.");
 
-        v1.MapGet("/{id}", async (Guid id, GetQuestionByIdHandler handler) =>
+        v1.MapGet("/{id:guid}", async (Guid id, GetQuestionByIdHandler handler) =>
         {
             var result = await handler.HandleAsync(id);
             return result is null ? Results.NotFound() : Results.Ok(result);
@@ -29,7 +29,7 @@ public static class QuestionsEndpoints
             .WithSummary("Get question by ID")
             .WithDescription("Retrieves a question by its unique identifier. Returns 404 if not found.");
 
-        v1.MapGet("/by-subject/{subjectId}", async (Guid subjectId, GetQuestionsBySubjectHandler handler) =>
+        v1.MapGet("/by-subject/{subjectId:guid}", async (Guid subjectId, GetQuestionsBySubjectHandler handler) =>
         {
             var result = await handler.HandleAsync(subjectId);
             return Results.Ok(result);
@@ -45,7 +45,7 @@ public static class QuestionsEndpoints
             .WithSummary("Create a new question")
             .WithDescription("Creates a new question with the provided details.");
 
-        v1.MapPut("/{id}", async (Guid id, UpdateQuestionDto dto, UpdateQuestionHandler handler) =>
+        v1.MapPut("/{id:guid}", async (Guid id, UpdateQuestionDto dto, UpdateQuestionHandler handler) =>
         {
             var updated = await handler.HandleAsync(id, dto);
             return updated ? Results.NoContent() : Results.NotFound();
@@ -53,7 +53,7 @@ public static class QuestionsEndpoints
             .WithSummary("Update an existing question")
             .WithDescription("Updates the details of an existing question by its unique identifier.");
 
-        v1.MapDelete("/{id}", async (Guid id, DeleteQuestionHandler handler) =>
+        v1.MapDelete("/{id}", async (Guid id, SoftDeleteQuestionHandler handler) =>
         {
             await handler.HandleAsync(id);
             return Results.NoContent();

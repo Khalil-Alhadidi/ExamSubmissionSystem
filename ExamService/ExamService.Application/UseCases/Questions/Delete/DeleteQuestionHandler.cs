@@ -1,4 +1,5 @@
-﻿using ExamService.Application.Interfaces;
+﻿using ExamService.Application.DTOs.Questions;
+using ExamService.Application.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

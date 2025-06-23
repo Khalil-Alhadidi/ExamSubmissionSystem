@@ -1,8 +1,8 @@
-﻿using ExamService.Application.Interfaces;
+﻿using ExamService.Application.DTOs.SubjectsDtos;
+using ExamService.Application.Interfaces;
 using ExamService.Domain.Entities;
 
 namespace ExamService.Application.UseCases.Subjects.Read;
-
 
 public class GetSubjectsHandler
 {
@@ -13,9 +13,10 @@ public class GetSubjectsHandler
         _repository = repository;
     }
 
-    public async Task<List<Subject>> HandleAsync()
+    public async Task<List<ReturnReadDto>> HandleAsync()
     {
-        return await _repository.GetAllAsync();
+        var subjects = await _repository.GetAllAsync();
+        return subjects.Select(s => new ReturnReadDto(s.Id, s.Name)).ToList();
     }
 }
 

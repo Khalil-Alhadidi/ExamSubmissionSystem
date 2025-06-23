@@ -41,4 +41,14 @@ public class SubjectRepository : ISubjectRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task SoftDeleteAsync(Guid id)
+    {
+        var subject = await _context.Subjects.FindAsync(id);
+        if (subject != null)
+        {
+            _context.Subjects.Update(subject);
+            await _context.SaveChangesAsync();
+        }
+    }
 }

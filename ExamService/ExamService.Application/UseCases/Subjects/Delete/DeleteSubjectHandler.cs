@@ -1,4 +1,5 @@
-﻿using ExamService.Application.Interfaces;
+﻿using ExamService.Application.DTOs.SubjectsDtos;
+using ExamService.Application.Interfaces;
 
 namespace ExamService.Application.UseCases.Subjects.Delete;
 

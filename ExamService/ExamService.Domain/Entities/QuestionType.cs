@@ -2,7 +2,7 @@
 
 public enum QuestionType
 {
-    // We can add MCQ later, but for now we will focus on the types below.
+    // We can add question types later but I'm keep those two for simplicity
     TrueFalse,
     Narrative
 }

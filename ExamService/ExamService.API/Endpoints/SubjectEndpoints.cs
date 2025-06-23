@@ -12,7 +12,7 @@ public static class SubjectEndpoints
     {
 
         var v1 = app.MapGroup("/api/v1/subjects")
-        .WithTags("Exam API v1");
+        .WithTags("Subjects API v1");
 
         v1.MapGet("/", async (GetSubjectsHandler handler) =>
         {
@@ -21,7 +21,7 @@ public static class SubjectEndpoints
             .WithSummary("List all subjects")
             .WithDescription("Returns all available subjects configured in the system.");
 
-        v1.MapGet("/{id}", async (Guid id, GetSubjectByIdHandler handler) =>
+        v1.MapGet("/{id:guid}", async (Guid id, GetSubjectByIdHandler handler) =>
         {
             var result = await handler.HandleAsync(id);
             return result is null ? Results.NotFound() : Results.Ok(result);
@@ -37,7 +37,7 @@ public static class SubjectEndpoints
             .WithSummary("Create a new subject")
             .WithDescription("Creates a new subject with the provided details.");
 
-        v1.MapPut("/{id}", async (Guid id, UpdateSubjectDto dto, UpdateSubjectHandler handler) =>
+        v1.MapPut("/{id:guid}", async (Guid id, UpdateSubjectDto dto, UpdateSubjectHandler handler) =>
         {
             await handler.HandleAsync(id, dto);
             return Results.NoContent();
@@ -45,13 +45,15 @@ public static class SubjectEndpoints
             .WithSummary("Update an existing subject")
             .WithDescription("Updates the details of an existing subject by its unique identifier.");
 
-        v1.MapDelete("/{id}", async (Guid id, DeleteSubjectHandler handler) =>
+
+        // for full delete, see DeleteSubjectHandler
+        v1.MapDelete("/{id}", async (Guid id, SoftDeleteSubjectHandler handler) =>
         {
             await handler.HandleAsync(id);
             return Results.NoContent();
         })
-            .WithSummary("Delete a subject")
-            .WithDescription("Deletes a subject by its unique identifier.");
+            .WithSummary("Soft Delete a subject")
+            .WithDescription("Soft Deletes a subject by its unique identifier.");
 
         return app;
     }

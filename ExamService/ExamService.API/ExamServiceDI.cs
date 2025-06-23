@@ -24,13 +24,16 @@ public static class ExamServiceDI
 {
     public static IServiceCollection AddExamServiceDI(this IServiceCollection services,IConfiguration configuration)
     {
-
+        services.AddOpenApi();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
         {
             c.SwaggerDoc("v1", new() { Title = "ExamService API", Version = "v1" });
+            c.SwaggerDoc("v2", new() { Title = "ExamService API", Version = "v2" });
         });
+
         
+
         services.AddCors(options =>
         {
             options.AddPolicy("AllowAllOrigins",
@@ -41,7 +44,8 @@ public static class ExamServiceDI
 
         // Database Context
         services.AddDbContext<ExamDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("ExamServiceDbConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("ExamServiceDbConnection"),
+             sql => sql.EnableRetryOnFailure(5, TimeSpan.FromSeconds(10), null)));
 
         // Repositories
         services.AddScoped<ISubjectRepository, SubjectRepository>();
@@ -58,17 +62,18 @@ public static class ExamServiceDI
         services.AddScoped<GetSubjectsHandler>();
         services.AddScoped<GetSubjectByIdHandler>();
         services.AddScoped<UpdateSubjectHandler>();
-        services.AddScoped<DeleteSubjectHandler>();
+        //services.AddScoped<DeleteSubjectHandler>();
+        services.AddScoped<SoftDeleteSubjectHandler>();
 
         #endregion
-
 
         #region Questions hanlders
         services.AddScoped<GetQuestionByIdHandler>();
         services.AddScoped<GetQuestionsHandler>();
         services.AddScoped<CreateQuestionHandler>();
         services.AddScoped<UpdateQuestionHandler>();
-        services.AddScoped<DeleteQuestionHandler>();
+        //services.AddScoped<DeleteQuestionHandler>();
+        services.AddScoped<SoftDeleteQuestionHandler>();
         services.AddScoped<GetQuestionsBySubjectHandler>();
 
         #endregion

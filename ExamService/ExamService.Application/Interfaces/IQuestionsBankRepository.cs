@@ -10,4 +10,5 @@ public interface IQuestionsBankRepository
     Task CreateAsync(QuestionsBank question);
     Task UpdateAsync(QuestionsBank question);
     Task DeleteAsync(Guid id);
+    Task SoftDeleteAsync(Guid id);
 }

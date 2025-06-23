@@ -2,10 +2,12 @@ using ExamService.API;
 using ExamService.API.Endpoints;
 using ExamService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-
-
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+using OpenTelemetry.Metrics;
 using Serilog;
 
+#region Logging and Telemetry
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
@@ -18,7 +20,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenTelemetry()
+    .WithTracing(tracerProviderBuilder =>
+    {
+        tracerProviderBuilder
+            .SetResourceBuilder(
+                ResourceBuilder.CreateDefault()
+                    .AddService("Exam Service"))
+            .AddAspNetCoreInstrumentation()
+            .AddHttpClientInstrumentation()
+            .AddConsoleExporter(); // Export to console for now (easy)
+    });
+
+#endregion
+
+
 
 
  
@@ -31,7 +47,7 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
     app.UseSwagger();
-    app.UseSwaggerUI(); // You can add options if needed
+    app.UseSwaggerUI(); 
 }
 
 //app.UseHttpsRedirection();
@@ -47,7 +63,7 @@ using (var scope = app.Services.CreateScope())
     await ExamDbSeeder.SeedAsync(db);
 }
 
-
+app.UseCors("AllowAllOrigins");
 app.MapExamEndpoints();
 app.MapSubjectsEndpoints();
 app.MapQuestionBanksEndpoints();

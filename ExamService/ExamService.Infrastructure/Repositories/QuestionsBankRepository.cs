@@ -43,5 +43,15 @@ public class QuestionsBankRepository : IQuestionsBankRepository
             await _context.SaveChangesAsync();
         }
     }
+
+    public async Task SoftDeleteAsync(Guid id)
+    {
+        var q = await _context.QuestionsBank.FindAsync(id);
+        if (q is not null)
+        {
+            _context.QuestionsBank.Update(q);
+            await _context.SaveChangesAsync();
+        }
+    }
 }
 

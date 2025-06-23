@@ -1,6 +1,6 @@
 ﻿namespace ExamService.Domain.Entities;
 
-public class QuestionsBank
+public class QuestionsBank : AuditableEntity
 {
     public Guid Id { get; set; }
     public Guid SubjectId { get; set; }

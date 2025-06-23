@@ -1,6 +1,6 @@
 ﻿namespace ExamService.Domain.Entities;
 
-public class ExamConfig
+public class ExamConfig : AuditableEntity
 {
     public Guid Id { get; set; }
     public string Name { get; set; } = default!;
