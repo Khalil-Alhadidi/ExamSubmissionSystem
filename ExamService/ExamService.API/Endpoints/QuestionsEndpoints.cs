@@ -11,7 +11,8 @@ public static class QuestionsEndpoints
     public static IEndpointRouteBuilder MapQuestionBanksEndpoints(this IEndpointRouteBuilder app)
     {
         var v1 = app.MapGroup("/api/v1/questions")
-            .WithTags("Questions Bank API v1");
+            .WithTags("Questions Bank API v1")
+            .RequireAuthorization("AdminOnly"); 
 
         v1.MapGet("/", async (GetQuestionsHandler handler) =>
         {

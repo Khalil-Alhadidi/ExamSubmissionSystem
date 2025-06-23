@@ -12,7 +12,8 @@ public static class ExamEndpoints
     public static IEndpointRouteBuilder MapExamEndpoints(this IEndpointRouteBuilder app)
     {
         var v1 = app.MapGroup("/api/v1/exams")
-            .WithTags("Exam Configuration API v1");
+            .WithTags("Exam Configuration API v1")
+            .RequireAuthorization("AdminOnly"); 
 
         v1.MapGet("/", async (GetExamConfigsHandler handler) =>
         {

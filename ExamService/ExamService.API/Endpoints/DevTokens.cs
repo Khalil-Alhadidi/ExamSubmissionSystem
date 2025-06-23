@@ -12,11 +12,7 @@ public static class DevTokens
         app.MapPost("/dev-token", () =>
         {
 
-            //    var claims = new[]
-            //    {
-            //new Claim("sub", "admin"),    
-            //new Claim("role", "admin")
-            //
+            
             var claims = new[]
                 {
                 new Claim(ClaimTypes.NameIdentifier, "admin"),
