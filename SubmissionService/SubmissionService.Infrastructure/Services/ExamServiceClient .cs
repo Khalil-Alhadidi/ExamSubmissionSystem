@@ -1,10 +1,5 @@
 ﻿using Shared.Contracts.ExamService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Json;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SubmissionService.Infrastructure.Services;
 
@@ -19,8 +14,10 @@ public class ExamServiceClient : IExamServiceClient
 
     public async Task<ExamConfigDto?> GetExamConfigAsync(Guid examId)
     {
-        var response = await _httpClient.GetAsync($"/api/v1/exam-configs/public/{examId}");
+        var request = new HttpRequestMessage(HttpMethod.Get, $"/api/v1/exam-configs/public/{examId}");
+        request.Headers.Add("X-Internal-Api-Key", CommunicationKey.ApiKey);
 
+        var response = await _httpClient.SendAsync(request);
         if (!response.IsSuccessStatusCode)
             return null;
 
