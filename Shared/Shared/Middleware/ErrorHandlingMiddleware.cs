@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Text.Json; // Add this for JSON serialization
+using System.Text.Json; 
 
 namespace Shared.Middleware;
 

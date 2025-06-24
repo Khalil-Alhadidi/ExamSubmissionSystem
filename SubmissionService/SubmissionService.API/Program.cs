@@ -3,19 +3,24 @@ using Microsoft.IdentityModel.Logging;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
+using Serilog.Enrichers.OpenTelemetry;
 using Shared.Extensions;
 using Shared.Middleware;
-using SubmissionService.API;
+using SubmissionService.API.DI;
+
 using SubmissionService.API.Endpoints;
 using SubmissionService.Infrastructure.Persistence;
 
 
 #region Logging and Telemetry
+
 Log.Logger = new LoggerConfiguration()
+    .Enrich.WithOpenTelemetryTraceId()
+    .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-    .Enrich.FromLogContext()
     .CreateLogger();
+
 
 
 
@@ -32,7 +37,7 @@ builder.Services.AddOpenTelemetry()
                     .AddService("Submission Service"))
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
-            .AddConsoleExporter(); // Export to console for now (easy)
+            .AddConsoleExporter(); // Export to console for now and can be changed later
     });
 
 #endregion
@@ -42,15 +47,23 @@ SubmissionServiceDI.AddSubmissionServiceDI(builder.Services, builder.Configurati
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+var enableSwagger = builder.Configuration.GetValue<bool>("Features:EnableSwagger");
+var enableDevEndpoints = builder.Configuration.GetValue<bool>("Features:EnableDevEndpoints");
+
+if (enableSwagger)
 {
     app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+if (enableDevEndpoints)
+{
     IdentityModelEventSource.ShowPII = true;
     app.MapDevTokenEndpoints();
 }
+
+
 
 using (var scope = app.Services.CreateScope())
 {

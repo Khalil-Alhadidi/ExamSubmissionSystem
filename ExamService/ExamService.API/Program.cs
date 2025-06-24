@@ -1,4 +1,3 @@
-using ExamService.API;
 using ExamService.API.Endpoints;
 using ExamService.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +8,16 @@ using OpenTelemetry.Trace;
 using Serilog;
 using Shared.Middleware;
 using Shared.Extensions;
+using ExamService.API.DI;
+using Serilog.Enrichers.OpenTelemetry;
 
 #region Logging and Telemetry
+
 Log.Logger = new LoggerConfiguration()
+    .Enrich.WithOpenTelemetryTraceId()
+    .Enrich.FromLogContext()
     .WriteTo.Console()
     .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-    .Enrich.FromLogContext()
     .CreateLogger();
 
 
@@ -32,7 +35,7 @@ builder.Services.AddOpenTelemetry()
                     .AddService("Exam Service"))
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
-            .AddConsoleExporter(); // Export to console for now (easy)
+            .AddConsoleExporter(); // Export to console and can be changed later
     });
 
 #endregion
@@ -42,14 +45,32 @@ ExamServiceDI.AddExamServiceDI(builder.Services, builder.Configuration);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+
+var enableSwagger = builder.Configuration.GetValue<bool>("Features:EnableSwagger");
+var enableDevEndpoints = builder.Configuration.GetValue<bool>("Features:EnableDevEndpoints");
+
+if (enableSwagger)
 {
+    app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI();
-    app.MapOpenApi();
+}
+
+if (enableDevEndpoints)
+{
     IdentityModelEventSource.ShowPII = true;
     app.MapDevTokenEndpoints();
 }
+
+
+//if (app.Environment.IsDevelopment())
+//{
+//    app.UseSwagger();
+//    app.UseSwaggerUI();
+//    app.MapOpenApi();
+//    IdentityModelEventSource.ShowPII = true;
+//    app.MapDevTokenEndpoints();
+//}
 
 using (var scope = app.Services.CreateScope())
 {
@@ -59,6 +80,7 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseCors("AllowAllOrigins");
+
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 

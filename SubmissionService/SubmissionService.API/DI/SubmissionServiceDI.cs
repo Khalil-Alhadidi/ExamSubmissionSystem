@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +18,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace SubmissionService.API;
+namespace SubmissionService.API.DI;
 
 public static class SubmissionServiceDI
 {
@@ -146,8 +147,19 @@ public static class SubmissionServiceDI
             options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
+        services.AddMassTransit(x =>
+        {
+            x.UsingRabbitMq((context, cfg) =>
+            {
+                cfg.Host(configuration["RabbitMQ:Host"], "/", h =>
+                {
+                    h.Username("rabbitmq");// this should be read from secure location
+                    h.Password("Admin@1234");
+                });
+            });
+        });
 
-
+        services.AddScoped<IEventPublisher, EventPublisher>();
 
 
         return services;

@@ -1,7 +1,8 @@
-﻿using SubmissionService.Application.DTOs;
+﻿using Shared.Contracts.Events;
+using Shared.Contracts.ExamService;
+using SubmissionService.Application.DTOs;
 using SubmissionService.Application.Interfaces;
 using SubmissionService.Domain.Entities;
-using Shared.Contracts.ExamService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,10 +14,18 @@ namespace SubmissionService.Application.UseCases.SubmitExam;
 public class SubmitExamHandler
 {
     private readonly ISubmissionRepository _repository;
+    private readonly IEventPublisher _eventPublisher;
 
-    public SubmitExamHandler(ISubmissionRepository repository)
+    //public SubmitExamHandler(ISubmissionRepository repository)
+    //{
+    //    _repository = repository;
+
+    //}
+
+    public SubmitExamHandler(ISubmissionRepository repository, IEventPublisher eventPublisher)
     {
         _repository = repository;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<Guid> HandleAsync(SubmitExamRequest request, Guid studentId, List<PublicQuestionDto> configQuestions)
@@ -51,13 +60,26 @@ public class SubmitExamHandler
                 {
                     QuestionId = a.QuestionId,
                     QuestionType = configQuestion.Type, // Use type from config
-                    SelectedOption = a.SelectedOption,
-                    NarrativeAnswerText = a.NarrativeAnswerText
+                    AnswerValue = a.AnswerValue
                 };
             }).ToList()
         };
 
         await _repository.AddAsync(submission);
+
+        //publsh event 
+
+        var evt = new AnswersSubmittedEvent
+        {
+            SubmissionId = submission.Id,
+            StudentId = submission.StudentId,
+            ExamId = submission.ExamId,
+            SubmittedAtUtc = submission.SubmittedAtUtc
+        };
+
+        await _eventPublisher.PublishAsync(evt);
+
+
         return submission.Id;
     }
 }

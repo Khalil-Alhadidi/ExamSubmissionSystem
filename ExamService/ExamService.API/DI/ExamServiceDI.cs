@@ -24,7 +24,7 @@ using Shared.Services;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
-namespace ExamService.API;
+namespace ExamService.API.DI;
 
 public static class ExamServiceDI
 {

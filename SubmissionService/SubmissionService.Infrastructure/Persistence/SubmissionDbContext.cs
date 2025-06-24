@@ -43,8 +43,7 @@ public class SubmissionDbContext : DbContext
                 answers.HasKey("Id");
                 answers.Property(a => a.QuestionId).IsRequired();
                 answers.Property(a => a.QuestionType).IsRequired();
-                answers.Property(a => a.SelectedOption);
-                answers.Property(a => a.NarrativeAnswerText);
+                answers.Property(a => a.AnswerValue);
                 answers.ToTable("Answers");
             });
 

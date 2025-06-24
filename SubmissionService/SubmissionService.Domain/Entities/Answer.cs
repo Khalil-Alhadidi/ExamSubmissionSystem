@@ -5,7 +5,6 @@ namespace SubmissionService.Domain.Entities;
 public class Answer : AuditableEntity
 {
     public Guid QuestionId { get; set; }
-    public string? SelectedOption { get; set; } // for TrueFalse
-    public string? NarrativeAnswerText { get; set; } // for Narrative
-    public string QuestionType { get; set; } = string.Empty; // "TrueFalse" or "Narrative"
+    public string? AnswerValue { get; set; } // Stores the answer for any question type
+    public string QuestionType { get; set; } = string.Empty; // e.g., "TrueFalse", "Narrative", etc.
 }
