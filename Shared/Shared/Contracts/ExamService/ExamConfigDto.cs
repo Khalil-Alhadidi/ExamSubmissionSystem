@@ -12,7 +12,6 @@ namespace Shared.Contracts.ExamService
         public Guid Id { get; set; }
         public DateTimeOffset OpenTimeUtc { get; set; }
         public DateTimeOffset CloseTimeUtc { get; set; }
-        public string TimeZone { get; set; } // optional for logging/debugging
         public List<PublicQuestionDto> Questions { get; set; } = new();
     }
 }

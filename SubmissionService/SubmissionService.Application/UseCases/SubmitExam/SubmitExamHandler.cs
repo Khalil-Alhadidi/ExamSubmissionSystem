@@ -16,11 +16,6 @@ public class SubmitExamHandler
     private readonly ISubmissionRepository _repository;
     private readonly IEventPublisher _eventPublisher;
 
-    //public SubmitExamHandler(ISubmissionRepository repository)
-    //{
-    //    _repository = repository;
-
-    //}
 
     public SubmitExamHandler(ISubmissionRepository repository, IEventPublisher eventPublisher)
     {
@@ -53,7 +48,7 @@ public class SubmitExamHandler
         {
             StudentId = studentId,
             ExamId = request.ExamId,
-            SubmittedAtUtc = DateTime.UtcNow,
+            SubmittedAtUtc = DateTimeOffset.UtcNow,
             Answers = request.Answers.Select(a => {
                 var configQuestion = configQuestions.First(q => q.Id == a.QuestionId);
                 return new Answer
@@ -67,8 +62,7 @@ public class SubmitExamHandler
 
         await _repository.AddAsync(submission);
 
-        //publsh event 
-
+        //publish an event 
         var evt = new AnswersSubmittedEvent
         {
             SubmissionId = submission.Id,

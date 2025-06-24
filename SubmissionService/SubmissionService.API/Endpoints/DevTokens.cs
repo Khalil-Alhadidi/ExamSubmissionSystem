@@ -12,14 +12,14 @@ public static class DevTokens
         app.MapPost("/dev-token", () =>
         {
 
-            // a
-            string studentId = "B046912D-D09D-4BCE-B95F-0F0D0FBC358A";
+            // so that I can test the cached submissions
+            string studentId = Guid.NewGuid().ToString();//"B046912D-D09D-4BCE-B95F-0F0D0FBC358A";
             var claims = new[]
                 {
             new Claim(ClaimTypes.NameIdentifier, "user"),
             new Claim(ClaimTypes.Role, "user"),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(ClaimTypes.Name, studentId)
+            new Claim(ClaimTypes.Name, studentId) // I know this is not ideal, but for testing purposes given that the whole appraoch is to mimic the user service
 
         };
 

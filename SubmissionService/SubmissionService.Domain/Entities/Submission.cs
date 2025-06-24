@@ -7,6 +7,6 @@ public class Submission : AuditableEntity
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid StudentId { get; set; }
     public Guid ExamId { get; set; }
-    public DateTime SubmittedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTimeOffset SubmittedAtUtc { get; set; } = DateTimeOffset.UtcNow;
     public List<Answer> Answers { get; set; } = new();
 }

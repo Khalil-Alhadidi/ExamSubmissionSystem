@@ -4,6 +4,7 @@ using SubmissionService.Application.DTOs;
 using SubmissionService.Application.UseCases.SubmitExam;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using static MassTransit.ValidationResultExtensions;
 
 namespace SubmissionService.API.Endpoints;
 
@@ -17,32 +18,46 @@ public static  class SubmitAnswersEndpoints
     .RequireAuthorization("StudentOnly");
 
         v1.MapPost("/submissions/{examId:guid}", async (
-    Guid examId,
-    SubmitExamRequest request,
-    HttpContext httpContext,
-    SubmitExamHandler handler,
-    IExamServiceClient examClient) =>
+                                                        Guid examId,
+                                                        SubmitExamRequest request,
+                                                        HttpContext httpContext,
+                                                        SubmitExamHandler handler,
+                                                        ICachedExamServiceClient examClient) =>
         {
 
-            // Extract StudentId (from token's "sub" claim)
+            
             var userId = httpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 
             if (!Guid.TryParse(userId, out var studentId))
                 return Results.Unauthorized();
 
             // Get exam config from ExamService
-            var config = await examClient.GetExamConfigAsync(examId);
-            if (config is null)
-                return Results.NotFound("Exam config not found");
+            var result = await examClient.GetExamConfigAsync(examId);
 
-            var now = DateTime.UtcNow;
-            if (now < config.OpenTimeUtc || now > config.CloseTimeUtc)
+            switch (result.Status)
+            {
+                case ExamConfigFetchStatus.Unavailable:
+                    return Results.Problem(
+                        detail: "The ExamService is currently unavailable and the exam config is not cached.",
+                        statusCode: 503,
+                        title: "Exam Config Unavailable");
+
+                case ExamConfigFetchStatus.NotFound:
+                    return Results.NotFound("Exam config not found for the provided exam ID.");
+
+                case ExamConfigFetchStatus.Ok:
+                    var config = result.Config!;
+                    break;
+            }
+
+            var now = DateTimeOffset.UtcNow;
+            if (now < result.Config.OpenTimeUtc || now > result.Config.CloseTimeUtc)
                 return Results.BadRequest("Exam is not currently open for submissions.");
 
             try
             {
                 // Save submission with validation against config questions
-                var submissionId = await handler.HandleAsync(request, studentId, config.Questions);
+                var submissionId = await handler.HandleAsync(request, studentId, result.Config.Questions);
                 return Results.Ok(new { SubmissionId = submissionId });
             }
             catch (InvalidOperationException ex)

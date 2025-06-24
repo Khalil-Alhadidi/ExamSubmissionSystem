@@ -134,6 +134,9 @@ public static class SubmissionServiceDI
             Console.WriteLine($"Retry {retryAttempt} due to {outcome.Exception?.Message}");
         }));
 
+        //caching
+        services.AddScoped<ICachedExamServiceClient, CachedExamServiceClient>();
+
         services.AddHttpClient("ExamServiceHealthCheck", client =>
         {
             client.BaseAddress = new Uri(configuration["Services:ExamServiceUrl"]!);
@@ -161,6 +164,8 @@ public static class SubmissionServiceDI
 
         services.AddScoped<IEventPublisher, EventPublisher>();
 
+
+        services.AddMemoryCache();
 
         return services;
     }

@@ -13,6 +13,6 @@ public class AnswersSubmittedEvent
     public Guid SubmissionId { get; set; }
     public Guid StudentId { get; set; }
     public Guid ExamId { get; set; }
-    public DateTime SubmittedAtUtc { get; set; }
+    public DateTimeOffset SubmittedAtUtc { get; set; }
 }
 

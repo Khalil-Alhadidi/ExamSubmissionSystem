@@ -100,7 +100,7 @@ app.MapGet("/ping-exam", async (IHttpClientFactory httpClientFactory) =>
     {
         return Results.Problem($"ExamService unreachable: {ex.Message}");
     }
-});
+}).WithDescription("Check connectivity with the Exam Service");
 
 
 app.Run();

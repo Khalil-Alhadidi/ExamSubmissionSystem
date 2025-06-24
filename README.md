@@ -6,8 +6,8 @@ This project is a backend-only exam platform built using clean architecture and 
 
 - ASP.NET Core 9
 - Entity Framework Core
-- RabbitMQ (message broker)
-- SQL Server (per service DB)
+- RabbitMQ (message broker) and MassTransit
+- Databases - SQL Server and InMemory (per service DB)
 - Serilog (logging)
 - OpenTelemetry (tracing)
 - xUnit (unit testing planned)
@@ -19,9 +19,9 @@ This project is a backend-only exam platform built using clean architecture and 
 
 | Service | Purpose |
 |--------|---------|
-| **ExamService** | Manage subjects, questions, and exam configuration (admin-only) |
-| **SubmissionService** | Allow students to submit exam responses |
-| **NotificationService** | Simulate notification to grading pipeline (fire-and-forget, async) |
+| **ExamService** | Manage subjects, questions, and exam configuration (admin-only) | SQL Server DB
+| **SubmissionService** | Allow students to submit exam responses | SQL Server DB
+| **NotificationService** | Simulate notification to grading pipeline (fire-and-forget, async) | InMemory DB
 
 Each service has its own database and runs independently.
 
@@ -40,3 +40,11 @@ The system uses a UTC-first strategy. All submission times are handled and store
 
 ## 🔄 Inter-Service Communication
 SubmissionService retrieves exam config from ExamService via synchronous HTTP calls, this ensures data consistency and simplicity. The architecture is ready to extend with an event-driven approach using RabbitMQ and a local cache (planned as a future enhancement).
+
+## 🧭 Caching
+The SubmissionService uses in-memory caching to reduce repeated calls to ExamService for the same exam ID. This improves performance for high-volume exam periods. In a production deployment, this would be replaced with a distributed cache like Redis to provide cross-instance consistency and offline fallback.
+
+
+## 🔧 API Gateway
+This system currently uses direct service-to-service communication. In a production deployment, I would introduce an API Gateway (such as YARP for .NET environments or an NGINX Ingress controller for Kubernetes) to manage cross-cutting concerns like routing, authentication, rate limiting, observability, and service discovery.
+
