@@ -11,5 +11,5 @@ Accept: application/json
 
 ### 2. Use the token below (after pasting into Bearer) to call a secured endpoint
 GET {{ExamService.API_HostAddress}}/api/v1/subjects
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6ImFkbWluIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiYWRtaW4iLCJleHAiOjE3NTA3MDkwNDR9.qVYpISER5uZ_O2sa5BuTrjVRhoCOysHOP3oyfBSn4vw
+Authorization: Bearer goes here . . . . 
 Accept: application/json

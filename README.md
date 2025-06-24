@@ -48,3 +48,43 @@ The SubmissionService uses in-memory caching to reduce repeated calls to ExamSer
 ## 🔧 API Gateway
 This system currently uses direct service-to-service communication. In a production deployment, I would introduce an API Gateway (such as YARP for .NET environments or an NGINX Ingress controller for Kubernetes) to manage cross-cutting concerns like routing, authentication, rate limiting, observability, and service discovery.
 
+
+## 🚀 How to Run & Use the Application
+Prerequisites
+•	.NET 9 SDK
+•	Docker Desktop (with Docker Compose)
+•	(Optional) curl or Postman for API testing
+
+1- Clone the Repo
+2- Open a terminal and navigate to the project root directory
+3- Run docker-compose up --build
+
+This will build and start all services and their dependencies.
+
+4- Use the following endpoints to interact with the services:
+This will start:
+•	ExamService (http://localhost:8080)
+•	SubmissionService (http://localhost:8081)
+•	NotificationService (http://localhost:8082)
+•	RabbitMQ Management UI (http://localhost:15672, user: rabbitmq, pass: Admin@1234)
+•	SQL Server for ExamService (port 11433, password: Admin@1234)
+•	SQL Server for SubmissionService (port 21433, password: Admin@1234)
+
+5. Accessing the APIs
+Each service exposes a Swagger UI for easy API exploration:
+•	ExamService: http://localhost:8080/swagger
+•	SubmissionService: http://localhost:8081/swagger
+•	NotificationService: http://localhost:8082/swagger
+
+6. Authentication
+•	Use the /dev-token endpoint (if enabled) in each service to generate JWT tokens for roles like admin or student.
+•	Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
+
+7. Example Workflow (Make sure to Authenticate first)
+•	Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
+•	Student: Use SubmissionService to submit exam responses (requires a student token).
+•	Notification: SubmissionService will trigger NotificationService for grading simulation.
+
+8. To stop the services, run: docker compose down
+
+
