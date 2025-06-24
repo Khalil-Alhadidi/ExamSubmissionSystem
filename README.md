@@ -67,42 +67,42 @@ This will build and start all services and their dependencies.
 
 This will start:
 
-•	ExamService (http://localhost:8080)
-
-•	SubmissionService (http://localhost:8081)
-
-•	NotificationService (http://localhost:8082)
-
-•	RabbitMQ Management UI (http://localhost:15672, user: rabbitmq, pass: Admin@1234)
-
-•	SQL Server for ExamService (port 11433, password: Admin@1234)
-
-•	SQL Server for SubmissionService (port 21433, password: Admin@1234)
+	-	ExamService (http://localhost:8080)
+	
+	-	SubmissionService (http://localhost:8081)
+	
+	-	NotificationService (http://localhost:8082)
+	
+	-	RabbitMQ Management UI (http://localhost:15672, user: rabbitmq, pass: Admin@1234)
+	
+	-	SQL Server 2019 Express for ExamService (port 11433, password: Admin@1234)
+	
+	-	SQL Server 2019 Express for SubmissionService (port 21433, password: Admin@1234)
 
 
 5. Accessing the APIs
 
 Each service exposes a Swagger UI for easy API exploration:
 
-•	ExamService: http://localhost:8080/swagger
-
-•	SubmissionService: http://localhost:8081/swagger
-
-•	NotificationService: http://localhost:8082/swagger
+	-	ExamService: http://localhost:8080/swagger
+	
+	-	SubmissionService: http://localhost:8081/swagger
+	
+	-	NotificationService: http://localhost:8082/swagger
 
 6. Authentication
 
-•	Use the /dev-token endpoint (if enabled) in each service to generate JWT tokens for roles like admin or student.
-
-•	Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
+	-	Use the /dev-token endpoint (if enabled) in each service to generate JWT tokens for roles like admin or student.
+	
+	-	Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
 
 7. Example Workflow (Make sure to Authenticate first)
 
-•	Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
-
-•	Student: Use SubmissionService to submit exam responses (requires a student token).
-
-•	Notification: SubmissionService will trigger NotificationService for grading simulation.
+	-	Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
+	
+	-	Student: Use SubmissionService to submit exam responses (requires a student token).
+	
+	-	Notification: SubmissionService will trigger NotificationService for grading simulation.
 
  
 8. To stop the services, run: docker compose down
