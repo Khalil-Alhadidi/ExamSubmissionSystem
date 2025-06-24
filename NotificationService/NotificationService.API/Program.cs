@@ -37,12 +37,15 @@ builder.Services.AddOpenTelemetry()
 
 #endregion
 
+#region DI Service Registration
 
 NotificationServiceDI.AddNotificationServiceDI(builder.Services, builder.Configuration);
 
+#endregion
 
 var app = builder.Build();
 
+#region Swagger and Dev Endpoints
 var enableSwagger = builder.Configuration.GetValue<bool>("Features:EnableSwagger");
 
 if (enableSwagger)
@@ -53,11 +56,14 @@ if (enableSwagger)
     IdentityModelEventSource.ShowPII = true;
 }
 
+#endregion
 
+#region Endpoints
 app.MapNotificationsEndpoints();
 
 app.MapGet("/", () => "NotificationService is up & running - current UTC Time is :" + DateTime.UtcNow);
 
+#endregion
 
 app.Run();
 

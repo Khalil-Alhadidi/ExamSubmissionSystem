@@ -40,12 +40,14 @@ builder.Services.AddOpenTelemetry()
 
 #endregion
 
-
+#region DI Service Registration 
 ExamServiceDI.AddExamServiceDI(builder.Services, builder.Configuration);
+ExamServiceSecurityDI.AddExamServiceInfraDI(builder.Services, builder.Configuration);
+#endregion
 
 var app = builder.Build();
 
-
+#region Swagger and Dev Endpoints
 var enableSwagger = builder.Configuration.GetValue<bool>("Features:EnableSwagger");
 var enableDevEndpoints = builder.Configuration.GetValue<bool>("Features:EnableDevEndpoints");
 
@@ -62,16 +64,7 @@ if (enableDevEndpoints)
     app.MapDevTokenEndpoints();
 }
 
-
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//    app.MapOpenApi();
-//    IdentityModelEventSource.ShowPII = true;
-//    app.MapDevTokenEndpoints();
-//}
-
+// Migrate and Seed Database
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ExamDbContext>();
@@ -79,8 +72,10 @@ using (var scope = app.Services.CreateScope())
     await ExamDbSeeder.SeedAsync(db);
 }
 
-app.UseCors("AllowAllOrigins");
+#endregion
 
+#region Middlewares
+app.UseCors("AllowAllOrigins");
 
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
@@ -88,11 +83,17 @@ app.UseAuthentication();
 app.UseClaimsGlobalValidation();
 app.UseAuthorization();
 
+#endregion
+
+#region Endpoints
+
 app.MapExamEndpoints();
 app.MapSubjectsEndpoints();
 app.MapQuestionBanksEndpoints();
 app.MapPublicExamConfigEndpoints();
 
 app.MapGet("/", () => "ExamService is running - current UTC Time is :"+DateTime.UtcNow);
+
+#endregion
 
 app.Run();

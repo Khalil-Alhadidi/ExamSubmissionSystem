@@ -7,7 +7,6 @@ using Serilog.Enrichers.OpenTelemetry;
 using Shared.Extensions;
 using Shared.Middleware;
 using SubmissionService.API.DI;
-
 using SubmissionService.API.Endpoints;
 using SubmissionService.Infrastructure.Persistence;
 
@@ -42,11 +41,15 @@ builder.Services.AddOpenTelemetry()
 
 #endregion
 
+#region DI Service Registration
 SubmissionServiceDI.AddSubmissionServiceDI(builder.Services, builder.Configuration);
+SubmissionServiceInfraDI.AddSubmissionServiceDI(builder.Services, builder.Configuration);
 
+#endregion
 
 var app = builder.Build();
 
+#region Swagger and Dev Endpoints
 var enableSwagger = builder.Configuration.GetValue<bool>("Features:EnableSwagger");
 var enableDevEndpoints = builder.Configuration.GetValue<bool>("Features:EnableDevEndpoints");
 
@@ -63,13 +66,14 @@ if (enableDevEndpoints)
     app.MapDevTokenEndpoints();
 }
 
-
-
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<SubmissionDbContext>();
     await db.Database.MigrateAsync();
 }
+#endregion
+
+#region Middleware
 
 app.UseCors("AllowAllOrigins");
 
@@ -82,6 +86,9 @@ app.UseClaimsGlobalValidation();
 
 app.UseAuthorization();
 
+#endregion
+
+#region Endpoints
 
 app.MapSubmissionEndpoints();
 
@@ -101,6 +108,8 @@ app.MapGet("/ping-exam", async (IHttpClientFactory httpClientFactory) =>
         return Results.Problem($"ExamService unreachable: {ex.Message}");
     }
 }).WithDescription("Check connectivity with the Exam Service");
+
+#endregion
 
 
 app.Run();

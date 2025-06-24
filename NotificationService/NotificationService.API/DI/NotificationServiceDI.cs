@@ -13,6 +13,8 @@ public static class NotificationServiceDI
 {
     public static IServiceCollection AddNotificationServiceDI(this IServiceCollection services, IConfiguration configuration)
     {
+
+        #region Swagger and OpenAPI
         services.AddOpenApi();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen(c =>
@@ -21,16 +23,22 @@ public static class NotificationServiceDI
 
         });
 
+        #endregion
 
+        #region Db Context
+        
         services.AddDbContext<NotificationDbContext>(options =>
                         options.UseInMemoryDatabase("NotificationInMemoryDb"));
 
+        #endregion
 
-
+        #region Repositories
         services.AddScoped<IAnswerSubmittedHandler, AnswerSubmittedHandler>();
         services.AddScoped<INotificationLogRepository, NotificationLogRepository>();
 
+        #endregion
 
+        #region RabbitMQ and MassTransit
         services.AddMassTransit(x =>
         {
             x.AddConsumer<AnswersSubmittedConsumer>();
@@ -49,6 +57,8 @@ public static class NotificationServiceDI
                 });
             });
         });
+
+        #endregion
 
 
         return services;

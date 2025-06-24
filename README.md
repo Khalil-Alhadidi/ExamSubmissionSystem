@@ -31,6 +31,7 @@ Each service has its own database and runs independently.
 
 - JWT-based auth with hardcoded tokens (no real UserService), In a real-world setup, authentication would be handled by a dedicated UserService that issues JWTs. For simplicity and time constraints, this project simulates authentication with generated tokens that include roles like 'admin' and 'student' using dev-token api in each service
 - Role-based access is enforced using Roles (Admin,User)
+- API Key is used for inter-service communication, ensuring that only authorized services can communicate with each other (this is hardcoded in the shared project, for a production enviroment this should be stored securly in a KeyVault or any similar service )
 
 ## 🐳 Docker
 This system is Dockerized and can be orchestrated via Kubernetes for scaling, but for simplicity and rapid development, Docker Compose is used here.
@@ -51,9 +52,9 @@ This system currently uses direct service-to-service communication. In a product
 
 ## 🚀 How to Run & Use the Application
 Prerequisites
-•	.NET 9 SDK
-•	Docker Desktop (with Docker Compose)
-•	(Optional) curl or Postman for API testing
+	-	.NET 9 SDK
+	-	Docker Desktop (with Docker Compose)
+	-	(Optional) curl or Postman for API testing
 
 1- Clone the Repo
 
