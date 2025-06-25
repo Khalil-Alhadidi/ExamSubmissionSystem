@@ -187,7 +187,7 @@ For simple testing (testing the full happy path)
 
  - Go to Submission Service Swagger UI and create a token by calling /dev-token endpoint and authenticate with the token in the Swagger UI
 
- - Copy the data from the seeded exam config *you will need examId, and the two question Ids* and use it to submit an exam response in Submission Service by calling the /v1/submissions endpoint.
+ - Copy the data from the seeded exam config *you will need examId, and the two question Ids* and use it to submit an exam response in Submission Service by calling the /api/v1/submit/submissions/{examId} endpoint.
 
  - Sample Json 
               	{
@@ -203,7 +203,7 @@ For simple testing (testing the full happy path)
                   ]
                  }
 
-	- 	- Go to Notification Service Swagger UI and call /logs to see the simulated notification logs for grading.
+	-  Go to Notification Service Swagger UI and call /logs to see the simulated notification logs for grading.
 
  
 8. To stop the services, run: 
