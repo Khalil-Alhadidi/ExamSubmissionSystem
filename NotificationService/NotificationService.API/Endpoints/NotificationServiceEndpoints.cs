@@ -12,7 +12,8 @@ public static class NotificationServiceEndpoints
         {
             var logs = await db.NotificationLogs.ToListAsync();
             return Results.Ok(logs);
-        });
+        }).WithDescription("Showing all incoming events - submitted for grading ")
+        .WithSummary("To show all incoming events that was sent for grading");
 
         return app;
     }
