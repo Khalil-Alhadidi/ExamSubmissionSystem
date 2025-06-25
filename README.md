@@ -61,7 +61,8 @@ API keys and secrets (e.g., inter-service keys, connection strings) are hardcode
 - ⚠️ In production, authentication should be delegated to a dedicated Identity Provider (e.g., IdentityServer, Auth0, Azure AD).
 
 ## 🐳 Docker
-This system is Dockerized and can be orchestrated via Kubernetes for scaling, but for simplicity and rapid development, Docker Compose is used here.
+-This system is Dockerized and can be orchestrated via Kubernetes for scaling, but for simplicity and rapid development, Docker Compose is used here.
+-In a production setup, I would configure GitHub Actions to build and push Docker images to DockerHub 
 
 ## ✅  Time Zone
 The system uses a UTC-first strategy. All submission times are handled and stored in UTC to avoid inconsistencies across global clients. Clients may optionally send their local timezone offset for contextual logging.”
