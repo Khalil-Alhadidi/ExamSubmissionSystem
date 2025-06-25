@@ -178,6 +178,33 @@ Each service exposes a Swagger UI for easy API exploration:
  	  
 	   -Notification: SubmissionService will trigger NotificationService for grading simulation.
 
+
+For simple testing (testing the full happy path)
+ 
+ - Go to Exam Service Swagger UI and Create a token by calling /dev-token endpoint and authenticate with the token in the Swagger UI
+
+ - Within Exam service, call the /v1/exam-configs endpoint to create an exam config (you can use the seeded data).
+
+ - Go to Submission Service Swagger UI and create a token by calling /dev-token endpoint and authenticate with the token in the Swagger UI
+
+ - Copy the data from the seeded exam config *you will need examId, and the two question Ids* and use it to submit an exam response in Submission Service by calling the /v1/submissions endpoint.
+
+ - Sample Json 
+              	{
+                     "answers": [
+                  {
+                    "questionId": "1d992702-31e9-4baa-b9f2-8ed9ed4cee5f",
+                    "answerValue": "answer 1"
+                  },
+                  {
+                    "questionId": "72373b12-065f-4ca1-a787-7c72aee78926",
+                    "answerValue": "answer2"
+                  }
+                  ]
+                 }
+
+	- 	- Go to Notification Service Swagger UI and call /logs to see the simulated notification logs for grading.
+
  
 8. To stop the services, run: 
        
