@@ -206,6 +206,13 @@ For simple testing (testing the full happy path)
 	-  Go to Notification Service Swagger UI and call /logs to see the simulated notification logs for grading.
 	-  To do another submition, you need to create a new token in the Submission Service Swagger UI, becasue each token represents different student, no need to create a new token in the ExamService, you can use the same json from your previous submission and it will work for the new token/student
 	-  To view the logs, go to Seq url as mentioned above (http://localhost:5341) and login with the credentials provided. You can filter logs by service name or severity level.
+
+ ---
+ Testing Video
+
+https://github.com/user-attachments/assets/496b6db2-964d-4f92-b67d-5bab79ac0e0d
+
+
  
 8. To stop the services, run: 
        
