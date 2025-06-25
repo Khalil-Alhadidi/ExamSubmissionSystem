@@ -126,7 +126,7 @@ This will start:
 	
 	-	SQL Server 2019 Express for SubmissionService (port 21433, password: Admin@1234)
 
-	-   Seq for logging (http://localhost:5341, user: admin, pass: Admin@1234)
+	-   Seq for logging (http://localhost:5341, user: admin, pass: Admin@1234) - it will ask you to change the password
 
 
 5. Accessing the APIs

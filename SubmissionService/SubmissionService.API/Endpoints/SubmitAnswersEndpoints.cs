@@ -1,11 +1,8 @@
-﻿using Azure.Core;
-using Shared.Contracts.ExamService;
+﻿using Shared.Contracts.ExamService;
 using SubmissionService.Application.DTOs;
 using SubmissionService.Application.UseCases.Get;
-using SubmissionService.Application.UseCases.SubmitExam;
-using System.IdentityModel.Tokens.Jwt;
+using SubmissionService.Application.UseCases.Create;
 using System.Security.Claims;
-using static MassTransit.ValidationResultExtensions;
 
 namespace SubmissionService.API.Endpoints;
 

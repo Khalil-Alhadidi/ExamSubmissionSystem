@@ -11,7 +11,7 @@ using Shared.Interfaces;
 using Shared.Services;
 using SubmissionService.Application.Interfaces;
 using SubmissionService.Application.UseCases.Get;
-using SubmissionService.Application.UseCases.SubmitExam;
+using SubmissionService.Application.UseCases.Create;
 using SubmissionService.Infrastructure.Persistence;
 using SubmissionService.Infrastructure.Repositories;
 using SubmissionService.Infrastructure.Services;
