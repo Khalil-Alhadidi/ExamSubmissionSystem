@@ -25,15 +25,28 @@ public class RequestLoggingMiddleware
         var requestId = Guid.NewGuid().ToString();
         context.Items["RequestId"] = requestId;
 
-        _logger.LogInformation("→ Handling {Method} {Path} | RequestId: {RequestId}",
-            context.Request.Method, context.Request.Path, requestId);
+        var correlationId = context.Request.Headers.TryGetValue("X-Correlation-ID", out var cid)
+            ? cid.ToString()
+            : requestId;
 
-        var sw = Stopwatch.StartNew();
-        await _next(context);
-        sw.Stop();
+        using (_logger.BeginScope(new Dictionary<string, object>
+        {
+            ["RequestId"] = requestId,
+            ["CorrelationId"] = correlationId,
+            ["Path"] = context.Request.Path,
+            ["Method"] = context.Request.Method
+        }))
+        {
+            _logger.LogInformation($"→ Handling request for {context.Request.Path}");
 
-        _logger.LogInformation("← Completed {StatusCode} in {ElapsedMs}ms | RequestId: {RequestId}",
-            context.Response.StatusCode, sw.ElapsedMilliseconds, requestId);
+            var sw = Stopwatch.StartNew();
+            await _next(context);
+            sw.Stop();
+
+            _logger.LogInformation("← Completed {StatusCode} in {ElapsedMs}ms",
+                context.Response.StatusCode, sw.ElapsedMilliseconds);
+        }
     }
 }
+
 
