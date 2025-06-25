@@ -37,8 +37,9 @@ This project was developed under time constraints and focused on demonstrating c
 
 ## 🔐 HTTP Communication Between Services
 -Services currently communicate over HTTP only within Docker Compose.
+-SubmissionService retrieves exam config from ExamService via synchronous HTTP calls, this ensures data consistency and simplicity. The architecture is ready to extend with an event-driven approach using RabbitMQ and a local cache (planned as a future enhancement).
 
-✔️ This is safe for local development (isolated network).
+✔️ This is safe and meant for local development (isolated network).
 
 ⚠️ In production, traffic should be secured using HTTPS, mTLS, or routed via a secure Ingress/API Gateway.
 
@@ -46,16 +47,15 @@ This project was developed under time constraints and focused on demonstrating c
 ## 🔑 API Keys and Secrets
 API keys and secrets (e.g., inter-service keys, connection strings) are hardcoded or stored in appsettings.json.
 
-⚠️ In production, use a secure secret management system such as:
--Azure Key Vault
--AWS Secrets Manager
--Kubernetes Secrets
--Environment variables
+⚠️ In production, it is recommended to use a secure secret management system such as:
+	-Azure Key Vault
+	-AWS Secrets Manager
+	-Kubernetes Secrets
+	-Environment variables
 
 ## 🗃️ Database Design
-- Each service has its own database schema, ensuring loose coupling.
-- ExamService uses SQL Server, while SubmissionService uses SQL Server with an in-memory fallback for testing.
-- Entities are designed with soft delete logic to prevent data loss.
+ - Each service has its own database schema, ensuring loose coupling.
+ - Entities are designed with soft delete logic to prevent data loss.
 
 ## 🧑‍💻 Libraries & Dependencies
 - I didn't use AutoMapper or Mediator/CQRS - given that these libiraries will need a commercial license for production use.
@@ -66,10 +66,10 @@ API keys and secrets (e.g., inter-service keys, connection strings) are hardcode
 
 ## 🔐 Authentication & Authorization
 
-- JWT-based auth with hardcoded tokens (no real UserService), In a real-world setup, authentication would be handled by a dedicated UserService that issues JWTs. For simplicity and time constraints, this project simulates authentication with generated tokens that include roles like 'admin' and 'student' using dev-token api in each service
+- JWT-based auth with hardcoded tokens (not real UserService), In a real-world setup, authentication would be handled by a dedicated UserService that issues JWTs. For simplicity and time constraints, this project simulates authentication with generated tokens that include roles like 'admin' and 'student' using dev-token api in each service
 - Role-based access is enforced using Roles (Admin,User)
 - API Key is used for inter-service communication, ensuring that only authorized services can communicate with each other (this is hardcoded in the shared project, for a production enviroment this should be stored securly in a KeyVault or any similar service )
-- ⚠️ In production, authentication should be delegated to a dedicated Identity Provider (e.g., IdentityServer, Auth0, Azure AD).
+- ⚠️ In production, authentication should be delegated to a dedicated Identity Provider (e.g., IdentityServer/Duende , KeyCloak, Azure EntraID).
 
 ## 🐳 Docker
 -This system is Dockerized and can be orchestrated via Kubernetes for scaling, but for simplicity and rapid development, Docker Compose is used here.
@@ -77,13 +77,12 @@ API keys and secrets (e.g., inter-service keys, connection strings) are hardcode
 -In a production setup, I would configure GitHub Actions to build and push Docker images to DockerHub 
 
 ## ✅  Time Zone
-The system uses a UTC-first strategy. All submission times are handled and stored in UTC to avoid inconsistencies across global clients. Clients may optionally send their local timezone offset for contextual logging.”
-
-## 🔄 Inter-Service Communication
-SubmissionService retrieves exam config from ExamService via synchronous HTTP calls, this ensures data consistency and simplicity. The architecture is ready to extend with an event-driven approach using RabbitMQ and a local cache (planned as a future enhancement).
+-The system uses a UTC-first strategy. All submission times are handled and stored in UTC to avoid inconsistencies across global clients.
 
 ## 🧭 Caching
-The SubmissionService uses in-memory caching to reduce repeated calls to ExamService for the same exam ID. This improves performance for high-volume exam periods. In a production deployment, this would be replaced with a distributed cache like Redis to provide cross-instance consistency and offline fallback.
+-The SubmissionService uses in-memory caching to reduce repeated calls to ExamService for the same exam ID. This improves performance for high-volume exam periods. 
+
+-In a production deployment, this would be replaced with a distributed cache like Redis to provide cross-instance consistency and offline fallback.
 
 ## 🗑️ Deletion Behavior
 
@@ -121,11 +120,11 @@ The SubmissionService uses in-memory caching to reduce repeated calls to ExamSer
 ## 🚀 How to Run & Use the Application
 Prerequisites
 	
-	-.NET 9 SDK
+	 .NET 9 SDK
 
-	-Docker Desktop (with Docker Compose)
+	 Docker Desktop (with Docker Compose)
 
-	-(Optional) curl or Postman for API testing
+	 You can use SwaggerUi for testing, (Optional) curl or Postman or Insomnia
 
 1- Clone the Repo
 
@@ -151,7 +150,7 @@ This will start:
 	
 		SQL Server 2019 Express for SubmissionService (port 21433, password: Admin@1234)
 
-	    Seq for logging (http://localhost:5341, user: admin, pass: Admin@1234) - it will ask you to change the password
+	        Seq for logging (http://localhost:5341, user: admin, pass: Admin@1234) - it will ask you to change the password
 
 
 5. Accessing the APIs
@@ -179,6 +178,8 @@ Each service exposes a Swagger UI for easy API exploration:
 	   -Notification: SubmissionService will trigger NotificationService for grading simulation.
 
  
-8. To stop the services, run: docker compose down
+8. To stop the services, run: 
+       
+       docker compose down
 
 
