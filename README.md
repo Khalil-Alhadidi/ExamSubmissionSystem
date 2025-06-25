@@ -73,6 +73,7 @@ API keys and secrets (e.g., inter-service keys, connection strings) are hardcode
 
 ## 🐳 Docker
 -This system is Dockerized and can be orchestrated via Kubernetes for scaling, but for simplicity and rapid development, Docker Compose is used here.
+
 -In a production setup, I would configure GitHub Actions to build and push Docker images to DockerHub 
 
 ## ✅  Time Zone
@@ -90,16 +91,22 @@ The SubmissionService uses in-memory caching to reduce repeated calls to ExamSer
 
 ## 🧠 Observability
 -Logging is handled via Serilog.
+
 -Logs are visualized using Seq (via Docker).
+
 -Traces are generated using OpenTelemetry (console-only).
+
 -⚠️ For production:
+
 	-Add distributed tracing with Jaeger/Zipkin
 	-Enable log correlation across services
 	-Store logs in a centralized, queryable system
 
 ## 🌐 API Gateway & Ingress
 -This system uses direct service-to-service calls.
+
 -⚠️ In production, we might consider introducing an API Gateway (e.g., YARP, or NGINX, etc) for:
+
 	-Routing
 	-Authentication
 	-Rate limiting
@@ -111,9 +118,12 @@ The SubmissionService uses in-memory caching to reduce repeated calls to ExamSer
 
 ## 🚀 How to Run & Use the Application
 Prerequisites
-	.NET 9 SDK
-	Docker Desktop (with Docker Compose)
-	(Optional) curl or Postman for API testing
+	
+	-.NET 9 SDK
+
+	-Docker Desktop (with Docker Compose)
+
+	-(Optional) curl or Postman for API testing
 
 1- Clone the Repo
 
@@ -153,13 +163,13 @@ Each service exposes a Swagger UI for easy API exploration:
 		NotificationService: http://localhost:8082/swagger
 
 6. Authentication
-	Use the /dev-token endpoint (if enabled) in each service to generate JWT tokens for roles like admin or student.
-	Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
+	  -Use the /dev-token endpoint in each service (except Notification) to generate JWT tokens for roles like admin or student.
+	  -Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
 
 7. Example Workflow (Make sure to Authenticate first)	
-	Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
-    Student: Use SubmissionService to submit exam responses (requires a student token).
-	Notification: SubmissionService will trigger NotificationService for grading simulation.
+	 -Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
+     -Student: Use SubmissionService to submit exam responses (requires a student token).
+	 -Notification: SubmissionService will trigger NotificationService for grading simulation.
 
  
 8. To stop the services, run: docker compose down
