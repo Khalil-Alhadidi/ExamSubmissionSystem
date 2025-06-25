@@ -42,7 +42,7 @@ This project was developed under time constraints and focused on demonstrating c
 
 ⚠️ In production, traffic should be secured using HTTPS, mTLS, or routed via a secure Ingress/API Gateway.
 
----
+
 ## 🔑 API Keys and Secrets
 API keys and secrets (e.g., inter-service keys, connection strings) are hardcoded or stored in appsettings.json.
 
@@ -52,7 +52,18 @@ API keys and secrets (e.g., inter-service keys, connection strings) are hardcode
 -Kubernetes Secrets
 -Environment variables
 
----
+## 🗃️ Database Design
+- Each service has its own database schema, ensuring loose coupling.
+- ExamService uses SQL Server, while SubmissionService uses SQL Server with an in-memory fallback for testing.
+- Entities are designed with soft delete logic to prevent data loss.
+
+## 🧑‍💻 Libraries & Dependencies
+- I didn't use AutoMapper or Mediator/CQRS - given that these libiraries will need a commercial license for production use.
+- I have used MassTransit (for the sake of time), knowing that it will also need a commercial license for production use.
+- FluentValidation as been used for input validation in the API layer (one handler to show case the usage, but not all handlers are using it for simplicity)
+
+
+
 ## 🔐 Authentication & Authorization
 
 - JWT-based auth with hardcoded tokens (no real UserService), In a real-world setup, authentication would be handled by a dedicated UserService that issues JWTs. For simplicity and time constraints, this project simulates authentication with generated tokens that include roles like 'admin' and 'student' using dev-token api in each service
@@ -96,6 +107,7 @@ The SubmissionService uses in-memory caching to reduce repeated calls to ExamSer
 	-Observability
 
 
+---
 
 ## 🚀 How to Run & Use the Application
 Prerequisites
@@ -109,7 +121,7 @@ Prerequisites
 
 3- Run docker-compose up --build
 
-This will build and start all services and their dependencies.
+	-This will build and start all services and their dependencies.
 
 4- Use the following endpoints to interact with the services:
 
