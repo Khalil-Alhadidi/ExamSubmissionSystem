@@ -86,7 +86,9 @@ SubmissionService retrieves exam config from ExamService via synchronous HTTP ca
 The SubmissionService uses in-memory caching to reduce repeated calls to ExamService for the same exam ID. This improves performance for high-volume exam periods. In a production deployment, this would be replaced with a distributed cache like Redis to provide cross-instance consistency and offline fallback.
 
 ## 🗑️ Deletion Behavior
+
 -Entities implement soft delete logic to avoid permanent data loss.
+
 -Records are flagged instead of removed from the database.
 
 ## 🧠 Observability
@@ -98,7 +100,7 @@ The SubmissionService uses in-memory caching to reduce repeated calls to ExamSer
 
 -⚠️ For production:
 
-	-Add distributed tracing with Jaeger/Zipkin
+	-Considering a distributed tracing with Jaeger/Zipkin
 	-Enable log correlation across services
 	-Store logs in a centralized, queryable system
 
@@ -163,13 +165,18 @@ Each service exposes a Swagger UI for easy API exploration:
 		NotificationService: http://localhost:8082/swagger
 
 6. Authentication
-	  -Use the /dev-token endpoint in each service (except Notification) to generate JWT tokens for roles like admin or student.
-	  -Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
+	
+     	 -Use the /dev-token endpoint in each service (except Notification) to generate JWT tokens for roles like admin or student.
+  
+	     -Add the token as a Bearer token in the Authorization header in SwaggerUI when making API requests.
 
 7. Example Workflow (Make sure to Authenticate first)	
-	 -Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
-     -Student: Use SubmissionService to submit exam responses (requires a student token).
-	 -Notification: SubmissionService will trigger NotificationService for grading simulation.
+	  		
+	   -Admin: Use ExamService to create subjects, questions, and configure exams (there is one exam config that is seeded you can use that by calling api/v1/exam-configs).
+ 
+       -Student: Use SubmissionService to submit exam responses (requires a student token).
+ 	  
+	   -Notification: SubmissionService will trigger NotificationService for grading simulation.
 
  
 8. To stop the services, run: docker compose down
