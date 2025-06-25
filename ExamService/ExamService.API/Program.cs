@@ -74,6 +74,7 @@ using (var scope = app.Services.CreateScope())
 #region Middlewares
 app.UseCors("AllowAllOrigins");
 
+app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 app.UseAuthentication();

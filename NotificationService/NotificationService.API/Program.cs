@@ -6,6 +6,7 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
 using Serilog.Enrichers.OpenTelemetry;
+using Shared.Middleware;
 
 
 #region Logging and Telemetry
@@ -57,6 +58,11 @@ if (enableSwagger)
 #endregion
 
 #region Endpoints
+
+app.UseMiddleware<RequestLoggingMiddleware>();
+app.UseMiddleware<ErrorHandlingMiddleware>();
+
+
 app.MapNotificationsEndpoints();
 
 app.MapGet("/", () => "NotificationService is up & running - current UTC Time is :" + DateTime.UtcNow);

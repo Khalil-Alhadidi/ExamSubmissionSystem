@@ -73,6 +73,8 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("AllowAllOrigins");
 
+app.UseMiddleware<RequestLoggingMiddleware>();
+
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 
