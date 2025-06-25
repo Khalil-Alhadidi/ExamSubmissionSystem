@@ -37,6 +37,7 @@ This project was developed under time constraints and focused on demonstrating c
 
 ## 🔐 HTTP Communication Between Services
 -Services currently communicate over HTTP only within Docker Compose.
+
 -SubmissionService retrieves exam config from ExamService via synchronous HTTP calls, this ensures data consistency and simplicity. The architecture is ready to extend with an event-driven approach using RabbitMQ and a local cache (planned as a future enhancement).
 
 ✔️ This is safe and meant for local development (isolated network).
