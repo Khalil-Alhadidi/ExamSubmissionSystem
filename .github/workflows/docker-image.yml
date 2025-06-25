@@ -1,0 +1,9 @@
+name: CI Placeholder
+
+on: [push]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "CI pipeline will build and push images here."
