@@ -16,7 +16,7 @@ This project is a backend-only exam platform built using clean architecture and 
 
 ---
 
-![Image](https://github.com/user-attachments/assets/a0fcc496-2f5b-4818-a519-fa667b56f598)
+![Image](https://github.com/user-attachments/assets/e6ec49b2-9cee-49fd-99f6-d92db30c23a2)
 
 ---
 
