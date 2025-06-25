@@ -10,6 +10,7 @@ using Shared.Contracts.ExamService;
 using Shared.Interfaces;
 using Shared.Services;
 using SubmissionService.Application.Interfaces;
+using SubmissionService.Application.UseCases.Get;
 using SubmissionService.Application.UseCases.SubmitExam;
 using SubmissionService.Infrastructure.Persistence;
 using SubmissionService.Infrastructure.Repositories;
@@ -35,8 +36,11 @@ public static class SubmissionServiceDI
 
         
         services.AddScoped<SubmitExamHandler>();
+        services.AddScoped<GetAllSubmissionsHandler>();
+        services.AddScoped<GetSubmissionsByExamHandler>();
+        services.AddScoped<GetSubmissionsByStudentHandler>();
 
-       
+
         services.AddHttpClient<IExamServiceClient, ExamServiceClient>(client =>
         {
             client.BaseAddress = new Uri(configuration["Services:ExamServiceUrl"]!);

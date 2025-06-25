@@ -11,4 +11,8 @@ public interface ISubmissionRepository
 {
     Task AddAsync(Submission submission);
     Task<bool> ExistsAsync(Guid studentId, Guid examId);
+
+    Task<List<Submission>> GetAllAsync();
+    Task<List<Submission>> GetByStudentIdAsync(Guid studentId);
+    Task<List<Submission>> GetByExamIdAsync(Guid examId);
 }

@@ -32,11 +32,33 @@ Each service has its own database and runs independently.
 
 ---
 
+## ⚙️ Design Decisions & Production Caveats
+This project was developed under time constraints and focused on demonstrating core architectural patterns. The following decisions were made intentionally for simplicity and should be revisited for production environments:
+
+## 🔐 HTTP Communication Between Services
+-Services currently communicate over HTTP only within Docker Compose.
+
+✔️ This is safe for local development (isolated network).
+
+⚠️ In production, traffic should be secured using HTTPS, mTLS, or routed via a secure Ingress/API Gateway.
+
+---
+## 🔑 API Keys and Secrets
+API keys and secrets (e.g., inter-service keys, connection strings) are hardcoded or stored in appsettings.json.
+
+⚠️ In production, use a secure secret management system such as:
+-Azure Key Vault
+-AWS Secrets Manager
+-Kubernetes Secrets
+-Environment variables
+
+---
 ## 🔐 Authentication & Authorization
 
 - JWT-based auth with hardcoded tokens (no real UserService), In a real-world setup, authentication would be handled by a dedicated UserService that issues JWTs. For simplicity and time constraints, this project simulates authentication with generated tokens that include roles like 'admin' and 'student' using dev-token api in each service
 - Role-based access is enforced using Roles (Admin,User)
 - API Key is used for inter-service communication, ensuring that only authorized services can communicate with each other (this is hardcoded in the shared project, for a production enviroment this should be stored securly in a KeyVault or any similar service )
+- ⚠️ In production, authentication should be delegated to a dedicated Identity Provider (e.g., IdentityServer, Auth0, Azure AD).
 
 ## 🐳 Docker
 This system is Dockerized and can be orchestrated via Kubernetes for scaling, but for simplicity and rapid development, Docker Compose is used here.
@@ -50,9 +72,28 @@ SubmissionService retrieves exam config from ExamService via synchronous HTTP ca
 ## 🧭 Caching
 The SubmissionService uses in-memory caching to reduce repeated calls to ExamService for the same exam ID. This improves performance for high-volume exam periods. In a production deployment, this would be replaced with a distributed cache like Redis to provide cross-instance consistency and offline fallback.
 
+## 🗑️ Deletion Behavior
+-Entities implement soft delete logic to avoid permanent data loss.
+-Records are flagged instead of removed from the database.
 
-## 🔧 API Gateway
-This system currently uses direct service-to-service communication. In a production deployment, I would introduce an API Gateway (such as YARP for .NET environments or an NGINX Ingress controller for Kubernetes) to manage cross-cutting concerns like routing, authentication, rate limiting, observability, and service discovery.
+## 🧠 Observability
+-Logging is handled via Serilog.
+-Logs are visualized using Seq (via Docker).
+-Traces are generated using OpenTelemetry (console-only).
+-⚠️ For production:
+	-Add distributed tracing with Jaeger/Zipkin
+	-Enable log correlation across services
+	-Store logs in a centralized, queryable system
+
+## 🌐 API Gateway & Ingress
+-This system uses direct service-to-service calls.
+-⚠️ In production, we might consider introducing an API Gateway (e.g., YARP, or NGINX, etc) for:
+	-Routing
+	-Authentication
+	-Rate limiting
+	-TLS termination
+	-Observability
+
 
 
 ## 🚀 How to Run & Use the Application

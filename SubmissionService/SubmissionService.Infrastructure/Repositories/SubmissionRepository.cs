@@ -25,6 +25,21 @@ public class SubmissionRepository : ISubmissionRepository
         await _context.SaveChangesAsync();
     }
 
+    public async Task<List<Submission>> GetAllAsync()
+        => await _context.Submissions.Include(s => s.Answers).ToListAsync();
+
+    public async Task<List<Submission>> GetByStudentIdAsync(Guid studentId)
+        => await _context.Submissions
+            .Where(s => s.StudentId == studentId)
+            .Include(s => s.Answers)
+            .ToListAsync();
+
+    public async Task<List<Submission>> GetByExamIdAsync(Guid examId)
+        => await _context.Submissions
+            .Where(s => s.ExamId == examId)
+            .Include(s => s.Answers)
+            .ToListAsync();
+
     public async Task<bool> ExistsAsync(Guid studentId, Guid examId)
     {
         return await _context.Submissions.AnyAsync(s => s.StudentId == studentId && s.ExamId == examId);
