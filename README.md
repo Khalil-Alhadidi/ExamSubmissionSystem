@@ -183,7 +183,7 @@ For simple testing (testing the full happy path)
  
  - Go to Exam Service Swagger UI and Create a token by calling /dev-token endpoint and authenticate with the token in the Swagger UI
 
- - Within Exam service, call the /v1/exam-configs endpoint to create an exam config (you can use the seeded data).
+ - Within Exam service, call the /api/v1/exam-configs endpoint to create an exam config (you can use the seeded data).
 
  - Go to Submission Service Swagger UI and create a token by calling /dev-token endpoint and authenticate with the token in the Swagger UI
 
