@@ -16,6 +16,10 @@ This project is a backend-only exam platform built using clean architecture and 
 
 ---
 
+![Image](https://github.com/user-attachments/assets/a0fcc496-2f5b-4818-a519-fa667b56f598)
+
+---
+
 ## 🏗️ Microservices
 
 | Service | Purpose |
