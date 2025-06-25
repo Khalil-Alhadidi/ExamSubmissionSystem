@@ -10,18 +10,16 @@ using Serilog.Enrichers.OpenTelemetry;
 
 #region Logging and Telemetry
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.WithOpenTelemetryTraceId()
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog();
+
+builder.Host.UseSerilog((context, services, cfg) =>
+    cfg.ReadFrom.Configuration(context.Configuration)
+       .Enrich.FromLogContext()
+       .Enrich.WithOpenTelemetryTraceId()
+);
+
+
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
@@ -32,7 +30,7 @@ builder.Services.AddOpenTelemetry()
                     .AddService("Notification Service"))
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
-            .AddConsoleExporter(); // Export to console and can be changed later
+            .AddConsoleExporter(); // Export to console and can be changed later to Jaeger in the future
     });
 
 #endregion

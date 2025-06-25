@@ -13,19 +13,15 @@ using SubmissionService.Infrastructure.Persistence;
 
 #region Logging and Telemetry
 
-Log.Logger = new LoggerConfiguration()
-    .Enrich.WithOpenTelemetryTraceId()
-    .Enrich.FromLogContext()
-    .WriteTo.Console()
-    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
-    .CreateLogger();
-
-
-
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Host.UseSerilog();
+
+builder.Host.UseSerilog((context, services, cfg) =>
+    cfg.ReadFrom.Configuration(context.Configuration)
+       .Enrich.FromLogContext()
+       .Enrich.WithOpenTelemetryTraceId()
+);
+
 
 builder.Services.AddOpenTelemetry()
     .WithTracing(tracerProviderBuilder =>
@@ -36,7 +32,7 @@ builder.Services.AddOpenTelemetry()
                     .AddService("Submission Service"))
             .AddAspNetCoreInstrumentation()
             .AddHttpClientInstrumentation()
-            .AddConsoleExporter(); // Export to console for now and can be changed later
+            .AddConsoleExporter(); // Export to console and can be changed later to Jaeger in the future
     });
 
 #endregion
@@ -95,17 +91,21 @@ app.MapSubmissionEndpoints();
 app.MapGet("/", () => "SubmissionService is running - current UTC Time is :" + DateTime.UtcNow);
 
 
-app.MapGet("/ping-exam", async (IHttpClientFactory httpClientFactory) =>
+app.MapGet("/ping-exam-service", async (IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory) =>
 {
+    var logger = loggerFactory.CreateLogger("PingExamService");
     try
     {
+        logger.LogInformation("Pinging Exam Service at / endpoint");
         var client = httpClientFactory.CreateClient("ExamServiceHealthCheck");
         var result = await client.GetStringAsync("/");
+        logger.LogInformation("Exam Service responded successfully");
         return Results.Ok(new { Status = "Reachable", Message = result });
     }
     catch (Exception ex)
     {
-        return Results.Problem($"ExamService unreachable: {ex.Message}");
+        logger.LogError(ex, "ExamService unreachable");
+        return Results.InternalServerError($"ExamService unreachable: {ex.Message}");
     }
 }).WithDescription("Check connectivity with the Exam Service");
 
@@ -113,5 +113,3 @@ app.MapGet("/ping-exam", async (IHttpClientFactory httpClientFactory) =>
 
 
 app.Run();
-
- 

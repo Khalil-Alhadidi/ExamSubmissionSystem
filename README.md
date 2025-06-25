@@ -9,7 +9,8 @@ This project is a backend-only exam platform built using clean architecture and 
 - RabbitMQ (message broker) and MassTransit
 - Databases - SQL Server and InMemory (per service DB)
 - Serilog (logging)
-- OpenTelemetry (tracing)
+- OpenTelemetry (tracing) without Jaeger which can be added later
+- Seq (Collecting and visualizing logs)
 - xUnit (unit testing planned)
 - Docker / Docker Compose
 
@@ -79,6 +80,8 @@ This will start:
 	-	SQL Server 2019 Express for ExamService (port 11433, password: Admin@1234)
 	
 	-	SQL Server 2019 Express for SubmissionService (port 21433, password: Admin@1234)
+
+	-   Seq for logging (http://localhost:5341, user: admin, pass: Admin@1234)
 
 
 5. Accessing the APIs

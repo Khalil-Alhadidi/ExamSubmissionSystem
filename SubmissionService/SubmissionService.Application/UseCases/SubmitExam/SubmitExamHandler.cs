@@ -23,10 +23,10 @@ public class SubmitExamHandler
         _eventPublisher = eventPublisher;
     }
 
-    public async Task<Guid> HandleAsync(SubmitExamRequest request, Guid studentId, List<PublicQuestionDto> configQuestions)
+    public async Task<Guid> HandleAsync(SubmitExamRequest request, Guid studentId, Guid examId, List<PublicQuestionDto> configQuestions)
     {
         // Check for duplicate submission
-        if (await _repository.ExistsAsync(studentId, request.ExamId))
+        if (await _repository.ExistsAsync(studentId, examId))
             throw new InvalidOperationException("Submission already exists for this exam and student.");
 
         // Validate that all questions in config are answered and no extra answers are submitted
@@ -47,12 +47,12 @@ public class SubmitExamHandler
         var submission = new Submission
         {
             StudentId = studentId,
-            ExamId = request.ExamId,
+            ExamId = examId,
             SubmittedAtUtc = DateTimeOffset.UtcNow,
             Answers = request.Answers.Select(a => {
                 var configQuestion = configQuestions.First(q => q.Id == a.QuestionId);
                 return new Answer
-                {
+                { 
                     QuestionId = a.QuestionId,
                     QuestionType = configQuestion.Type, // Use type from config
                     AnswerValue = a.AnswerValue

@@ -8,24 +8,21 @@ using static MassTransit.ValidationResultExtensions;
 
 namespace SubmissionService.API.Endpoints;
 
-public static  class SubmitAnswersEndpoints
+public static class SubmitAnswersEndpoints
 {
     public static IEndpointRouteBuilder MapSubmissionEndpoints(this IEndpointRouteBuilder app)
     {
-
         var v1 = app.MapGroup("/api/v1/submit")
-    .WithTags("Submit Answers API v1")
-    .RequireAuthorization("StudentOnly");
+            .WithTags("Submit Answers API v1")
+            .RequireAuthorization("StudentOnly");
 
         v1.MapPost("/submissions/{examId:guid}", async (
-                                                        Guid examId,
-                                                        SubmitExamRequest request,
-                                                        HttpContext httpContext,
-                                                        SubmitExamHandler handler,
-                                                        ICachedExamServiceClient examClient) =>
+            Guid examId,
+            SubmitExamRequest request,
+            HttpContext httpContext,
+            SubmitExamHandler handler,
+            ICachedExamServiceClient examClient) =>
         {
-
-            
             var userId = httpContext.User.FindFirst(ClaimTypes.Name)?.Value;
 
             if (!Guid.TryParse(userId, out var studentId))
@@ -41,12 +38,9 @@ public static  class SubmitAnswersEndpoints
                         detail: "The ExamService is currently unavailable and the exam config is not cached.",
                         statusCode: 503,
                         title: "Exam Config Unavailable");
-
                 case ExamConfigFetchStatus.NotFound:
                     return Results.NotFound("Exam config not found for the provided exam ID.");
-
                 case ExamConfigFetchStatus.Ok:
-                    var config = result.Config!;
                     break;
             }
 
@@ -57,7 +51,7 @@ public static  class SubmitAnswersEndpoints
             try
             {
                 // Save submission with validation against config questions
-                var submissionId = await handler.HandleAsync(request, studentId, result.Config.Questions);
+                var submissionId = await handler.HandleAsync(request, studentId, examId, result.Config.Questions);
                 return Results.Ok(new { SubmissionId = submissionId });
             }
             catch (InvalidOperationException ex)

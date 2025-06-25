@@ -10,9 +10,13 @@ services:
       - "8080:8080"
     environment:
       - ConnectionStrings__ExamServiceDbConnection=Server=examdb,1433;Database=ExamServiceDb;User=sa;Password=Admin@1234;TrustServerCertificate=True;
+      - Serilog__SeqServerUrl=http://seq:5341
     restart: on-failure
     depends_on:
       - examdb
+      - seq
+  
+  
 
   examdb:
     container_name: examservice.mssql
@@ -40,9 +44,12 @@ services:
       - "8081:8080"
     environment:
       - ConnectionStrings__SubmissionServiceDbConnection=Server=submissiondb,1433;Database=SubmissionServiceDb;User=sa;Password=Admin@1234;TrustServerCertificate=True;
+      - Serilog__SeqServerUrl=http://seq:5341
     restart: on-failure
     depends_on:
       - submissiondb
+      - seq
+
 
   submissiondb:
     container_name: submissionservice.mssql
@@ -81,13 +88,30 @@ services:
       dockerfile: NotificationService/NotificationService.API/Dockerfile
     ports:
       - "8082:8080"
+    environment:
+      - Serilog__SeqServerUrl=http://seq:5341
     restart: on-failure
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    environment:
+      - ACCEPT_EULA=Y
+      - SEQ_FIRSTRUN_ADMINUSERNAME=admin
+      - SEQ_FIRSTRUN_ADMINPASSWORD=Admin@1234
+    ports:
+      - "5341:80"
+      - "5342:5341"
+    restart: on-failure
+    volumes:
+      - seqdata:/data
 
 volumes:
   examdata:
   submissiondata:
   rabbitmqdata:
+  seqdata:
 
 networks:
   default:
-    name: microgama-net
+    name: micro-net
