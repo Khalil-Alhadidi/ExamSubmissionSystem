@@ -26,7 +26,7 @@ This project is a backend-only exam platform built using clean architecture and 
 |--------|---------|
 | **ExamService** | Manage subjects, questions, and exam configuration (admin-only) - SQL Server DB
 | **SubmissionService** | Allow students to submit exam responses - SQL Server DB
-| **NotificationService** | Simulate notification to grading pipeline (fire-and-forget, async) - InMemory DB
+| **NotificationService** | Simulate notification to grading pipeline (fire-and-forget, async) - SQL Server DB
 
 Each service has its own database and runs independently.
 
