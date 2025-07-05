@@ -75,6 +75,16 @@ public static class SubmissionServiceDI
 
         services.AddMassTransit(x =>
         {
+            // Add the EF outbox for publishing
+            x.AddEntityFrameworkOutbox<SubmissionDbContext>(o =>
+            {
+                o.UseSqlServer();
+                o.QueryDelay = TimeSpan.FromSeconds(1);
+                o.UseBusOutbox();
+                o.DisableInboxCleanupService();
+                o.DuplicateDetectionWindow = TimeSpan.FromMinutes(30);
+            });
+
             x.UsingRabbitMq((context, cfg) =>
             {
                 cfg.Host(configuration["RabbitMQ:Host"], "/", h =>
@@ -82,6 +92,7 @@ public static class SubmissionServiceDI
                     h.Username("rabbitmq");// this should be read from secure location
                     h.Password("Admin@1234");
                 });
+                cfg.ConfigureEndpoints(context);
             });
         });
 

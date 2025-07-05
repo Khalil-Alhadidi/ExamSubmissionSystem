@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.ComponentModel.DataAnnotations;
 using System.Text.Json; 
 
 namespace Shared.Middleware;
@@ -20,6 +21,15 @@ public class ErrorHandlingMiddleware
         try
         {
             await _next(context);
+        }
+        catch (ValidationException ex)
+        {
+            _logger.LogWarning(ex, "Validation error");
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/json";
+            var error = new { error = "Something went wrong", details = ex.Message };
+            var json = JsonSerializer.Serialize(error);
+            await context.Response.WriteAsync(json);
         }
         catch (Exception ex)
         {

@@ -3,21 +3,23 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using SubmissionService.Infrastructure.Persistence;
+using NotificationService.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace SubmissionService.Infrastructure.Migrations
+namespace NotificationService.Infrastructure.Migrations
 {
-    [DbContext(typeof(SubmissionDbContext))]
-    partial class SubmissionDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(NotificationDbContext))]
+    [Migration("20250705121114_MovingToSqlServer")]
+    partial class MovingToSqlServer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("Submission")
                 .HasAnnotation("ProductVersion", "9.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -67,7 +69,7 @@ namespace SubmissionService.Infrastructure.Migrations
 
                     b.HasIndex("Delivered");
 
-                    b.ToTable("InboxState", "Submission");
+                    b.ToTable("InboxState");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -160,7 +162,7 @@ namespace SubmissionService.Infrastructure.Migrations
                         .IsUnique()
                         .HasFilter("[InboxMessageId] IS NOT NULL AND [InboxConsumerId] IS NOT NULL");
 
-                    b.ToTable("OutboxMessage", "Submission");
+                    b.ToTable("OutboxMessage");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxState", b =>
@@ -190,45 +192,30 @@ namespace SubmissionService.Infrastructure.Migrations
 
                     b.HasIndex("Created");
 
-                    b.ToTable("OutboxState", "Submission");
+                    b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("SubmissionService.Domain.Entities.Submission", b =>
+            modelBuilder.Entity("NotificationService.Domain.Entities.NotificationLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("CreatedAtUtc")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTimeOffset?>("DeletedAtUtc")
-                        .HasColumnType("datetimeoffset");
-
                     b.Property<Guid>("ExamId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTimeOffset?>("ModifiedAtUtc")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime>("NotifiedAtUtc")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("StudentId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTimeOffset>("SubmittedAtUtc")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<Guid>("SubmissionId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Submissions", "Submission");
+                    b.ToTable("NotificationLogs");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -241,58 +228,6 @@ namespace SubmissionService.Infrastructure.Migrations
                         .WithMany()
                         .HasForeignKey("InboxMessageId", "InboxConsumerId")
                         .HasPrincipalKey("MessageId", "ConsumerId");
-                });
-
-            modelBuilder.Entity("SubmissionService.Domain.Entities.Submission", b =>
-                {
-                    b.OwnsMany("SubmissionService.Domain.Entities.Answer", "Answers", b1 =>
-                        {
-                            b1.Property<Guid>("Id")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("AnswerValue")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateTimeOffset>("CreatedAtUtc")
-                                .HasColumnType("datetimeoffset");
-
-                            b1.Property<string>("CreatedBy")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<DateTimeOffset?>("DeletedAtUtc")
-                                .HasColumnType("datetimeoffset");
-
-                            b1.Property<bool>("IsDeleted")
-                                .HasColumnType("bit");
-
-                            b1.Property<DateTimeOffset?>("ModifiedAtUtc")
-                                .HasColumnType("datetimeoffset");
-
-                            b1.Property<string>("ModifiedBy")
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<Guid>("QuestionId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("QuestionType")
-                                .IsRequired()
-                                .HasColumnType("nvarchar(max)");
-
-                            b1.Property<Guid>("SubmissionId")
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.HasKey("Id");
-
-                            b1.HasIndex("SubmissionId");
-
-                            b1.ToTable("Answers", "Submission");
-
-                            b1.WithOwner()
-                                .HasForeignKey("SubmissionId");
-                        });
-
-                    b.Navigation("Answers");
                 });
 #pragma warning restore 612, 618
         }

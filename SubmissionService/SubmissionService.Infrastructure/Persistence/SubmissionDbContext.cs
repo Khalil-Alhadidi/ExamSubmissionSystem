@@ -12,6 +12,8 @@ using Shared.Entities;
 using Shared.Interfaces;
 using SubmissionService.Domain.Entities;
 using System.Linq.Expressions;
+using MassTransit;
+using MassTransit.EntityFrameworkCoreIntegration;
 
 public class SubmissionDbContext : DbContext
 {
@@ -60,6 +62,11 @@ public class SubmissionDbContext : DbContext
                     .HasQueryFilter(GetIsDeletedRestriction(entityType.ClrType));
             }
         }
+
+        // MassTransit outbox configuration
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

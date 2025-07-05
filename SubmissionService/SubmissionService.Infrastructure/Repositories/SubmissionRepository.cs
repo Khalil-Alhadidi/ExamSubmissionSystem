@@ -44,4 +44,9 @@ public class SubmissionRepository : ISubmissionRepository
     {
         return await _context.Submissions.AnyAsync(s => s.StudentId == studentId && s.ExamId == examId);
     }
+
+    public async Task SaveChanges()
+    {
+        await _context.SaveChangesAsync();
+    }
 }

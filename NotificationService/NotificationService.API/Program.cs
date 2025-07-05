@@ -1,7 +1,9 @@
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Logging;
 using NotificationService.API.DI;
 using NotificationService.API.Endpoints;
+using NotificationService.Infrastructure.Persistence;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using Serilog;
@@ -53,6 +55,12 @@ if (enableSwagger)
     app.UseSwagger();
     app.UseSwaggerUI();
     IdentityModelEventSource.ShowPII = true;
+}
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<NotificationDbContext>();
+    await db.Database.MigrateAsync();
 }
 
 #endregion

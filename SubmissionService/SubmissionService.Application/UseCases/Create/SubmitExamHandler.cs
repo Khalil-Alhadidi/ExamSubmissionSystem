@@ -1,4 +1,5 @@
-﻿using Shared.Contracts.Events;
+﻿using Microsoft.Extensions.Logging;
+using Shared.Contracts.Events;
 using Shared.Contracts.ExamService;
 using SubmissionService.Application.DTOs;
 using SubmissionService.Application.Interfaces;
@@ -15,6 +16,7 @@ public class SubmitExamHandler
 {
     private readonly ISubmissionRepository _repository;
     private readonly IEventPublisher _eventPublisher;
+    private readonly ILogger<SubmitExamHandler> _logger;
 
 
     public SubmitExamHandler(ISubmissionRepository repository, IEventPublisher eventPublisher)
@@ -25,6 +27,7 @@ public class SubmitExamHandler
 
     public async Task<Guid> HandleAsync(SubmitExamRequest request, Guid studentId, Guid examId, List<PublicQuestionDto> configQuestions)
     {
+        
         // Check for duplicate submission
         if (await _repository.ExistsAsync(studentId, examId))
             throw new InvalidOperationException("Submission already exists for this exam and student.");
@@ -61,17 +64,26 @@ public class SubmitExamHandler
         };
 
         await _repository.AddAsync(submission);
-
-        //publish an event 
-        var evt = new AnswersSubmittedEvent
+        
+        try
         {
-            SubmissionId = submission.Id,
-            StudentId = submission.StudentId,
-            ExamId = submission.ExamId,
-            SubmittedAtUtc = submission.SubmittedAtUtc
-        };
+            //publish an event 
+            var evt = new AnswersSubmittedEvent
+            {
+                SubmissionId = submission.Id,
+                StudentId = submission.StudentId,
+                ExamId = submission.ExamId,
+                SubmittedAtUtc = submission.SubmittedAtUtc
+            };
 
-        await _eventPublisher.PublishAsync(evt);
+            await _eventPublisher.PublishAsync(evt);
+        }
+        catch (Exception ee)
+        {
+            _logger.LogError(ee, "Failed to publish AnswersSubmittedEvent for submission {SubmissionId}", submission.Id);
+        }
+        
+        await _repository.SaveChanges();
 
 
         return submission.Id;

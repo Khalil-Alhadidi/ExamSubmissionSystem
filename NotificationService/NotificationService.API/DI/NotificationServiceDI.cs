@@ -28,7 +28,7 @@ public static class NotificationServiceDI
         #region Db Context
         
         services.AddDbContext<NotificationDbContext>(options =>
-                        options.UseInMemoryDatabase("NotificationInMemoryDb"));
+                        options.UseSqlServer(configuration.GetConnectionString("NotificationServiceDbConnection")));
 
         #endregion
 
@@ -54,6 +54,8 @@ public static class NotificationServiceDI
                 cfg.ReceiveEndpoint("notification-service-answers-submitted", e =>
                 {
                     e.ConfigureConsumer<AnswersSubmittedConsumer>(context);
+
+                    e.UseMessageRetry(r => r.Interval(3, TimeSpan.FromSeconds(5)));
                 });
             });
         });

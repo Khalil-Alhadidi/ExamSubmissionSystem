@@ -9,6 +9,7 @@ namespace SubmissionService.Application.Interfaces;
 
 public interface ISubmissionRepository
 {
+    Task SaveChanges();
     Task AddAsync(Submission submission);
     Task<bool> ExistsAsync(Guid studentId, Guid examId);
 
